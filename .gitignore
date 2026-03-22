@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.*
+*.tsbuildinfo
+
+# Credentials - never commit
+config.json
+.neto-cli/
+*.pem
+*.key
+
+# Theme working directories
+theme/
