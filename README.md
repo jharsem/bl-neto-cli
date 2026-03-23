@@ -146,6 +146,99 @@ neto products export > products.json
 neto products export --all --fields SKU,Name,DefaultPrice,AvailableSellQuantity > all-products.json
 ```
 
+#### `neto products create`
+
+Create a new product. Supports common flags for frequently-used fields, `--field Key=Value` for any of the 192 API fields, or `--from-json` for full JSON control.
+
+| Option | Description | Default |
+|---|---|---|
+| `--sku <sku>` | Product SKU (required unless `--from-json`) | |
+| `--name <name>` | Product name | |
+| `--brand <brand>` | Brand | |
+| `--model <model>` | Model | |
+| `--price <price>` | Default price | |
+| `--cost-price <price>` | Cost price | |
+| `--rrp <price>` | Recommended retail price | |
+| `--description <desc>` | Full description | |
+| `--short-description <desc>` | Short description | |
+| `--active <bool>` | Is active | `True` |
+| `--visible <bool>` | Is visible | `True` |
+| `--category <id>` | Category ID (repeatable) | |
+| `--supplier <name>` | Primary supplier | |
+| `--quantity <n>` | Stock quantity | |
+| `--image-url <url>` | Primary image URL | |
+| `--field <Key=Value>` | Set any API field (repeatable) | |
+| `--from-json [path]` | Read from JSON file or stdin | |
+| `--dry-run` | Show payload without sending | |
+| `--json` | Output response as JSON | |
+
+```bash
+# Simple create
+neto products create --sku WIDGET-001 --name "Widget" --price 29.95 --brand "Acme"
+
+# With extra fields
+neto products create --sku WIDGET-001 --name "Widget" --price 29.95 --field Misc01="Custom" --field TaxCategory="GST"
+
+# From JSON file
+neto products create --from-json product.json
+
+# From stdin
+echo '{"SKU":"WIDGET-001","Name":"Widget","DefaultPrice":"29.95"}' | neto products create --from-json
+
+# Preview without sending
+neto products create --sku WIDGET-001 --name "Widget" --price 29.95 --dry-run
+```
+
+#### `neto products update <sku>`
+
+Update an existing product. Same flags as create (all optional), with SKU provided as argument.
+
+| Option | Description |
+|---|---|
+| `--name <name>` | Product name |
+| `--brand <brand>` | Brand |
+| `--model <model>` | Model |
+| `--price <price>` | Default price |
+| `--cost-price <price>` | Cost price |
+| `--rrp <price>` | Recommended retail price |
+| `--description <desc>` | Full description |
+| `--short-description <desc>` | Short description |
+| `--active <bool>` | Is active |
+| `--visible <bool>` | Is visible |
+| `--category <id>` | Category ID (repeatable) |
+| `--supplier <name>` | Primary supplier |
+| `--quantity <n>` | Stock quantity |
+| `--image-url <url>` | Primary image URL |
+| `--field <Key=Value>` | Set any API field (repeatable) |
+| `--from-json [path]` | Read from JSON file or stdin |
+| `--dry-run` | Show payload without sending |
+| `--json` | Output response as JSON |
+
+```bash
+# Update price
+neto products update WIDGET-001 --price 34.95
+
+# Update multiple fields
+neto products update WIDGET-001 --price 34.95 --name "Widget Pro" --field ShortDescription="Now improved"
+
+# Preview changes
+neto products update WIDGET-001 --price 34.95 --dry-run
+```
+
+#### `neto products edit <sku>`
+
+Open a product in your `$EDITOR` for interactive editing. Fetches the product, opens it as JSON, computes the diff, and sends only changed fields.
+
+| Option | Description | Default |
+|---|---|---|
+| `--fields <fields>` | Comma-separated fields to fetch | *(broad default set)* |
+| `--json` | Output the update payload instead of sending | |
+
+```bash
+neto products edit WIDGET-001
+EDITOR=code neto products edit WIDGET-001   # open in VS Code
+```
+
 ---
 
 ### `neto orders`

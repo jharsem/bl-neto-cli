@@ -44,7 +44,7 @@ src/
   commands/
     auth.ts             # neto auth setup|status|clear|sftp
     info.ts             # neto info (connectivity test)
-    products.ts         # neto products list|get|export
+    products.ts         # neto products list|get|export|create|update|edit
     orders.ts           # neto orders list|get|export
     customers.ts        # neto customers list|get
     api.ts              # neto api <action> (raw escape hatch) + neto actions
@@ -53,6 +53,7 @@ src/
     client.ts           # NetoApiClient - HTTP wrapper for Neto API
     config.ts           # Config read/write (~/.neto-cli/config.json)
     output.ts           # Table, JSON, detail output formatters
+    product-helpers.ts  # Payload building, JSON input, $EDITOR launch, diff
 ```
 
 ### Key Patterns

@@ -59,6 +59,9 @@ These can be changed via `neto auth sftp --host <host> --port <port> --remote-pa
 | `neto products list` | `--limit <n>` (default 50), `--page <n>` (default 0), `--brand <brand>`, `--active <True/False>` (default True), `--all`, `--fields <csv>`, `--json` |
 | `neto products get <sku>` | `--fields <csv>`, `--json` |
 | `neto products export` | `--active <True/False>` (default True), `--all`, `--batch-size <n>` (default 100), `--fields <csv>` |
+| `neto products create` | `--sku` (required), `--name`, `--brand`, `--price`, `--cost-price`, `--rrp`, `--description`, `--active`, `--visible`, `--category` (repeatable), `--supplier`, `--quantity`, `--image-url`, `--field Key=Value` (repeatable), `--from-json [path]`, `--dry-run`, `--json` |
+| `neto products update <sku>` | Same flags as create (all optional). SKU from argument. `--field`, `--from-json`, `--dry-run`, `--json` |
+| `neto products edit <sku>` | Opens product in `$EDITOR` as JSON. Computes diff and sends only changes. `--fields <csv>`, `--json` |
 
 Default list fields: `SKU, Name, Brand, DefaultPrice, IsActive, DateUpdated`
 
@@ -122,6 +125,15 @@ neto products export > products.json
 neto products export --all --fields SKU,Name,DefaultPrice,AvailableSellQuantity > inventory.json
 ```
 
+### Create and update products
+```bash
+neto products create --sku WIDGET-001 --name "Widget" --price 29.95 --brand "Acme"
+neto products update WIDGET-001 --price 34.95 --field ShortDescription="Now improved"
+neto products edit WIDGET-001                              # interactive $EDITOR
+echo '{"SKU":"BULK-001","Name":"Bulk"}' | neto products create --from-json
+neto products create --sku TEST --name "Test" --dry-run    # preview payload
+```
+
 ### Check recent orders
 ```bash
 neto orders list --status New --limit 20
@@ -161,6 +173,7 @@ neto-cli/
       client.ts           # NetoApiClient (HTTP wrapper, retry, response key mapping)
       config.ts           # Config types, read/write ~/.neto-cli/config.json
       output.ts           # Table, JSON, detail view formatters
+      product-helpers.ts  # Payload building, JSON input, $EDITOR launch, diff
 ```
 
 Built with TypeScript, Commander.js, chalk, ora, cli-table3, inquirer, ssh2-sftp-client. Requires Node.js 18+.
