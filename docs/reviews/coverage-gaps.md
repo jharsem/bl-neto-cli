@@ -1,6 +1,6 @@
 # Coverage Gaps — CLI vs. Neto API
 
-**Generated:** 2026-04-18
+**Generated:** 2026-04-18 (Tier 1: customers done)
 **Method:** Cross-reference of `src/commands/*.ts` and `src/commands/api.ts` (`KNOWN_ACTIONS`) against `../neto-docs-engineer/docs/` (48 scraped action docs).
 **Re-run:** `/review-cli`
 
@@ -28,8 +28,8 @@
 | `AddOrder` | orders-invoices | escape-hatch | ⚠️ | **Tier 1** |
 | `UpdateOrder` | orders-invoices | escape-hatch | ⚠️ | **Tier 1** |
 | `GetCustomer` | customers | `customers list / get` | ✅ | — |
-| `AddCustomer` | customers | escape-hatch | ⚠️ | **Tier 1** |
-| `UpdateCustomer` | customers | escape-hatch | ⚠️ | **Tier 1** |
+| `AddCustomer` | customers | `customers create` | ✅ | — |
+| `UpdateCustomer` | customers | `customers update` | ✅ | — |
 | `GetCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
 | `AddCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
 | `UpdateCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
@@ -63,7 +63,7 @@
 | `UpdateAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
 | `DeleteAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
 
-**Totals:** 9 ✅ dedicated · 32 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
+**Totals:** 11 ✅ dedicated · 30 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
 
 ---
 
@@ -71,14 +71,14 @@
 
 ### Tier 1 — complete existing CRUD (quick wins)
 
-Parity with `products`, using the same patterns (list/get/export already exist on reads; only writes are missing):
+Parity with `products`, using the same patterns:
 
-- **`neto customers create`** (`AddCustomer`) — `--username`, `--email`, `--first-name`, `--last-name`, `--type <Customer|Prospect>`, address flags, `--from-json`, `--dry-run`
-- **`neto customers update <username>`** (`UpdateCustomer`) — mirror of create, same flag shape
+- ✅ **`neto customers create`** (`AddCustomer`) — done 2026-04-18
+- ✅ **`neto customers update <username>`** (`UpdateCustomer`) — done 2026-04-18
 - **`neto orders create`** (`AddOrder`) — minimal flags + `--from-json` (order payloads are complex; JSON-first is fine)
 - **`neto orders update <id>`** (`UpdateOrder`) — `--status`, `--tracking`, `--from-json`, `--dry-run`
 
-**Reuse:** `buildItemPayload` pattern in `src/lib/product-helpers.ts` generalises cleanly. Extract into `buildPayload(flagMap, opts)` and one shared `readJsonInput` helper.
+**Shared helper landed:** `buildPayload(flagMap, opts)` now lives in [src/lib/payload-helpers.ts](../../src/lib/payload-helpers.ts) — orders and all Tier 2 resources can build on it.
 
 ### Tier 2 — commonly-used resources (real user demand)
 

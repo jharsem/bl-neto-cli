@@ -110,7 +110,7 @@ Also included: `CustomerRef1` — exists in `getorder.md`. ✅
 
 ---
 
-## 3. Customers — `GetCustomer`
+## 3. Customers — `GetCustomer` / `AddCustomer` / `UpdateCustomer`
 
 **Files touched:** `src/commands/customers.ts`
 **Docs:** `docs/customers/getcustomer.md`
@@ -138,6 +138,39 @@ CLI help text: "Customer or Prospect". `getcustomer.md` documents exactly these 
 ### Default OutputSelectors
 
 All 18 entries in `DEFAULT_GET_FIELDS` (including `Username`, `EmailAddress`, `Company`, `BillingAddress`, `ShippingAddress`, `AccountBalance`, `CreditLimit`, `NewsletterSubscriber`, `DateOfBirth`, `Fax`, `Phone`) appear as OutputSelectors in `getcustomer.md`. ✅
+
+### Write payloads — `customers create / update` (added 2026-04-18)
+
+**File:** [src/lib/customer-helpers.ts](../../src/lib/customer-helpers.ts), [src/commands/customers.ts](../../src/commands/customers.ts)
+**Docs:** `docs/customers/addcustomer.md`, `docs/customers/updatecustomer.md`
+
+`CUSTOMER_FLAG_MAP`:
+
+| Flag | API field | In `addcustomer.md`? | Result |
+|---|---|---|---|
+| `--username` → `Username` | yes | ✅ |
+| `--type` → `Type` (enum `Customer`/`Prospect`) | yes | ✅ |
+| `--password` → `Password` | yes | ✅ |
+| `--email` → `EmailAddress` | yes | ✅ |
+| `--secondary-email` → `SecondaryEmailAddress` | yes | ✅ |
+| `--first-name` → `FirstName`, `--last-name` → `LastName` | yes | ✅ |
+| `--company` → `Company`, `--phone` → `Phone`, `--fax` → `Fax` | yes | ✅ |
+| `--date-of-birth` → `DateOfBirth`, `--gender` → `Gender` | yes | ✅ |
+| `--user-group` → `UserGroup`, `--credit-limit` → `CreditLimit` | yes | ✅ |
+| `--active` → `Active`, `--newsletter` → `NewsletterSubscriber`, `--sms` → `SMSSubscriber` | yes | ✅ |
+| `--abn` → `ABN`, `--internal-notes` → `InternalNotes` | yes | ✅ |
+
+Address handling:
+
+| Behaviour | Verified against `addcustomer.md`? | Result |
+|---|---|---|
+| Billing: `--street` → `BillStreetLine1`, `--city` → `BillCity`, etc. packed into `BillingAddress` block | Matches documented `Bill*` children (`BillStreetLine1`, `BillStreetLine2`, `BillCity`, `BillState`, `BillPostCode`, `BillCountry`) | ✅ |
+| Shipping: `--ship-street` → `ShipStreetLine1`, etc. packed into `ShippingAddress` block | Matches documented `Ship*` children | ✅ |
+| `--first-name`/`--last-name` also copied to `BillFirstName`/`BillLastName` when present | Per denormalised address model in `addcustomer.md` | ✅ |
+| `--ship-same-as-bill` copies all `Bill*` → `Ship*`, then applies any `--ship-*` overrides | Mirror of docs' per-field structure | ✅ |
+| Empty address blocks omitted from payload (verified via tsx smoke test) | — | ✅ |
+
+Request body wrapper: `{Customer: [...]}` — matches `<AddCustomer><Customer>…` structure in docs. ✅
 
 ---
 

@@ -336,6 +336,90 @@ neto customers get 12345
 neto customers get john_doe --json
 ```
 
+#### `neto customers create`
+
+Create a new customer. Supports common flags, nested billing/shipping addresses, `--field Key=Value` for any API field, or `--from-json` for full control.
+
+| Option | Description | Default |
+|---|---|---|
+| `--username <u>` | Customer username (required unless `--from-json`) | |
+| `--type <type>` | `Customer` or `Prospect` | |
+| `--password <p>` | Password | |
+| `--email <addr>` | Email address | |
+| `--secondary-email <addr>` | Secondary email | |
+| `--first-name <n>` | First name | |
+| `--last-name <n>` | Last name | |
+| `--company <c>` | Company name | |
+| `--phone <p>` | Phone | |
+| `--fax <f>` | Fax | |
+| `--date-of-birth <YYYY-MM-DD>` | Date of birth | |
+| `--gender <g>` | Gender | |
+| `--user-group <id>` | User group | |
+| `--credit-limit <amount>` | Credit limit | |
+| `--active <bool>` | Is active (True/False) | |
+| `--newsletter <bool>` | Newsletter subscriber | |
+| `--sms <bool>` | SMS subscriber | |
+| `--abn <abn>` | ABN | |
+| `--internal-notes <text>` | Internal notes | |
+| `--street <s>` | Billing street line 1 | |
+| `--street2 <s>` | Billing street line 2 | |
+| `--city <c>` | Billing city | |
+| `--state <s>` | Billing state | |
+| `--postcode <p>` | Billing postcode | |
+| `--country <c>` | Billing country | |
+| `--ship-same-as-bill` | Copy billing address to shipping | |
+| `--ship-street <s>` | Shipping street line 1 | |
+| `--ship-street2 <s>` | Shipping street line 2 | |
+| `--ship-city <c>` | Shipping city | |
+| `--ship-state <s>` | Shipping state | |
+| `--ship-postcode <p>` | Shipping postcode | |
+| `--ship-country <c>` | Shipping country | |
+| `--ship-first-name <n>` | Shipping first name (if different) | |
+| `--ship-last-name <n>` | Shipping last name (if different) | |
+| `--field <Key=Value>` | Set any API field (repeatable) | |
+| `--from-json [path]` | Read from JSON file or stdin | |
+| `--dry-run` | Show payload without sending | |
+| `--json` | Output response as JSON | |
+
+```bash
+# Simple create
+neto customers create --username jdoe --email jane@example.com --first-name Jane --last-name Doe --type Customer
+
+# With address, shipping same as billing
+neto customers create --username jdoe --email jane@example.com \
+  --first-name Jane --last-name Doe \
+  --street "1 Example St" --city Sydney --state NSW --postcode 2000 --country AU \
+  --ship-same-as-bill
+
+# Custom fields via --field
+neto customers create --username jdoe --email jane@example.com \
+  --field Classification1=VIP --field UserCustom01=referral
+
+# From JSON file
+neto customers create --from-json customer.json
+
+# Preview without sending
+neto customers create --username jdoe --email jane@example.com --dry-run
+```
+
+#### `neto customers update <username>`
+
+Update an existing customer. Same flags as `create` (all optional), with username provided as argument.
+
+```bash
+# Update credit limit
+neto customers update jdoe --credit-limit 5000
+
+# Update email and a custom field
+neto customers update jdoe --email jane.new@example.com --field Classification1=VIP
+
+# Update shipping address only
+neto customers update jdoe --ship-street "2 New Rd" --ship-city Melbourne
+
+# Preview changes
+neto customers update jdoe --credit-limit 5000 --dry-run
+```
+
 ---
 
 ### `neto theme`
