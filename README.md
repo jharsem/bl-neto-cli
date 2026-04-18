@@ -297,6 +297,74 @@ neto orders export > orders.json
 neto orders export --status Dispatched --date-from 2025-01-01 > dispatched-2025.json
 ```
 
+#### `neto orders create`
+
+Create a new order. `--email`, `--bill-company`, and at least one `--line SKU:QTY` are required (the Neto API also requires `ShipCompany`; use `--ship-same-as-bill` or `--ship-company`). Use `--from-json` for complex OrderLine payloads (ExtraOptions, KitComponents, warehouse targeting).
+
+Key options:
+
+| Option | Description |
+|---|---|
+| `--email <addr>` | Customer email (required) |
+| `--username <u>` | Existing customer username |
+| `--bill-company <c>`, `--bill-first-name`, `--bill-last-name`, `--bill-street`, `--bill-street2`, `--bill-city`, `--bill-state`, `--bill-postcode`, `--bill-country`, `--bill-phone` | Billing address |
+| `--ship-same-as-bill` | Copy every `Bill*` field to its `Ship*` equivalent |
+| `--ship-company`, `--ship-street`, … | Shipping address overrides (same shape) |
+| `--line <SKU:QTY[:PRICE]>` | Order line (repeatable) |
+| `--order-type <t>` | `sales`, `dropshipping`, or `quote` |
+| `--order-status <s>` | Initial status (e.g. `New`, `Pick`) |
+| `--payment-method <m>`, `--shipping-method <m>`, `--shipping-cost <n>` | |
+| `--currency-code <c>` | 3-letter currency code |
+| `--date-placed <dt>`, `--date-required <dt>` | |
+| `--field <Key=Value>` | Set any documented Order field (repeatable) |
+| `--from-json [path]` | Read one or more orders from JSON file or stdin |
+| `--dry-run` | Print the payload without calling the API |
+
+```bash
+neto orders create \
+  --email jane@example.com --bill-company Acme \
+  --bill-first-name Jane --bill-last-name Doe \
+  --bill-street "1 Main St" --bill-city Sydney --bill-country AU \
+  --ship-same-as-bill \
+  --line SKU-1:2 --line SKU-2:1:9.99 \
+  --order-type sales --dry-run
+
+neto orders create --from-json order.json
+```
+
+#### `neto orders update <id>`
+
+Update an existing order. Typical flows: change status, attach tracking, edit notes.
+
+| Option | Description |
+|---|---|
+| `--order-status <s>` | New status (e.g. `Dispatched`, `Cancelled`) |
+| `--send-order-email <t>` | `tracking` or `receipt` — send email after update |
+| `--sku <sku>` | Target OrderLine SKU for tracking details |
+| `--tracking-number <n>` | Tracking number (attached to the OrderLine) |
+| `--tracking-shipping-method <m>` | Shipping method for tracking (must match a Neto shipping service) |
+| `--date-shipped <dt>` | DateShipped for the tracking block |
+| `--pick-status <s>`, `--export-status <s>`, `--deduce-warehouse <bool>` | Fulfilment flags |
+| `--bill-*` / `--ship-*` / `--ship-same-as-bill` | Edit addresses |
+| `--ship-instructions`, `--internal-order-notes`, `--sticky-note`, `--sticky-note-title` | |
+| `--field <Key=Value>` | Any other Order field |
+| `--from-json [path]` | Replace the whole payload from JSON |
+| `--dry-run` | Print without sending |
+
+```bash
+# Mark dispatched with tracking and email the customer
+neto orders update N1000 \
+  --order-status Dispatched \
+  --sku ABC-123 \
+  --tracking-number C123345 \
+  --tracking-shipping-method "Australia Post eParcel" \
+  --date-shipped "2026-04-18 10:00:00" \
+  --send-order-email tracking
+
+# Quick status change
+neto orders update N1000 --order-status "On Hold"
+```
+
 ---
 
 ### `neto customers`

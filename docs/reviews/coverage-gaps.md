@@ -1,6 +1,6 @@
 # Coverage Gaps — CLI vs. Neto API
 
-**Generated:** 2026-04-18 (Tier 1: customers done)
+**Generated:** 2026-04-18 (Tier 1 complete: customers + orders write commands shipped)
 **Method:** Cross-reference of `src/commands/*.ts` and `src/commands/api.ts` (`KNOWN_ACTIONS`) against `../neto-docs-engineer/docs/` (48 scraped action docs).
 **Re-run:** `/review-cli`
 
@@ -25,8 +25,8 @@
 | `AddItem` | products | `products create` | ✅ | — |
 | `UpdateItem` | products | `products update / edit` | ✅ | — |
 | `GetOrder` | orders-invoices | `orders list / get / export` | ✅ | — |
-| `AddOrder` | orders-invoices | escape-hatch | ⚠️ | **Tier 1** |
-| `UpdateOrder` | orders-invoices | escape-hatch | ⚠️ | **Tier 1** |
+| `AddOrder` | orders-invoices | `orders create` | ✅ | — |
+| `UpdateOrder` | orders-invoices | `orders update` | ✅ | — |
 | `GetCustomer` | customers | `customers list / get` | ✅ | — |
 | `AddCustomer` | customers | `customers create` | ✅ | — |
 | `UpdateCustomer` | customers | `customers update` | ✅ | — |
@@ -63,22 +63,22 @@
 | `UpdateAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
 | `DeleteAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
 
-**Totals:** 11 ✅ dedicated · 30 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
+**Totals:** 13 ✅ dedicated · 28 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
 
 ---
 
 ## Missing-command shortlist
 
-### Tier 1 — complete existing CRUD (quick wins)
+### Tier 1 — complete existing CRUD (quick wins) — **DONE**
 
 Parity with `products`, using the same patterns:
 
 - ✅ **`neto customers create`** (`AddCustomer`) — done 2026-04-18
 - ✅ **`neto customers update <username>`** (`UpdateCustomer`) — done 2026-04-18
-- **`neto orders create`** (`AddOrder`) — minimal flags + `--from-json` (order payloads are complex; JSON-first is fine)
-- **`neto orders update <id>`** (`UpdateOrder`) — `--status`, `--tracking`, `--from-json`, `--dry-run`
+- ✅ **`neto orders create`** (`AddOrder`) — done 2026-04-18. Ergonomic flags for core fields + addresses, `--line SKU:QTY[:PRICE]` repeatable shorthand, `--from-json` for complex OrderLine payloads.
+- ✅ **`neto orders update <id>`** (`UpdateOrder`) — done 2026-04-18. Status/tracking/notes flags; tracking attaches to OrderLine via `--sku` + `--tracking-number` + `--tracking-shipping-method`.
 
-**Shared helper landed:** `buildPayload(flagMap, opts)` now lives in [src/lib/payload-helpers.ts](../../src/lib/payload-helpers.ts) — orders and all Tier 2 resources can build on it.
+**Shared helper:** `buildPayload(flagMap, opts)` in [src/lib/payload-helpers.ts](../../src/lib/payload-helpers.ts) — reused by customers, orders, and ready for every Tier 2 resource.
 
 ### Tier 2 — commonly-used resources (real user demand)
 

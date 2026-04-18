@@ -228,3 +228,83 @@ All four recommended patches landed in this pass:
 4. ✅ **Comment hygiene** — the stale `DefaultQuantity` comment is gone; the new block points at `docs/products/additem.md` as the source of truth.
 
 No other mismatches found between wired CLI behaviour and the scraped docs as of this pass.
+
+---
+
+## 6. Orders write commands (added 2026-04-18)
+
+**Files touched:** `src/lib/order-helpers.ts`, `src/commands/orders.ts`
+**Docs:** `docs/orders-invoices/{addorder.md, updateorder.md}`
+
+### Flag → API field map (shared between `orders create` and `orders update`)
+
+| CLI flag | API field | AddOrder doc | UpdateOrder doc | Result |
+|---|---|---|---|---|
+| `--order-id` | `OrderID` | ✅ String(15) | ✅ Optional | ✅ |
+| `--purchase-order-number` | `PurchaseOrderNumber` | ✅ | ✅ | ✅ |
+| `--on-hold-type` | `OnHoldType` | ✅ (On Hold, Layby) | ✅ | ✅ |
+| `--username` | `Username` | ✅ | — | ✅ |
+| `--email` | `Email` | ✅ **Required** | ✅ **Required** | ✅ |
+| `--bill-first-name` | `BillFirstName` | ✅ | ✅ | ✅ |
+| `--bill-last-name` | `BillLastName` | ✅ | ✅ | ✅ |
+| `--bill-company` | `BillCompany` | ✅ **Required** | ✅ **Required** | ✅ |
+| `--bill-street` | `BillStreet1` | ✅ | ✅ | ✅ |
+| `--bill-street2` | `BillStreet2` | ✅ | ✅ | ✅ |
+| `--bill-city` | `BillCity` | ✅ | ✅ | ✅ |
+| `--bill-state` | `BillState` | ✅ | ✅ | ✅ |
+| `--bill-postcode` | `BillPostCode` | ✅ | ✅ | ✅ |
+| `--bill-phone` | `BillContactPhone` | ✅ | ✅ | ✅ |
+| `--bill-country` | `BillCountry` | ✅ (2) | ✅ (2) | ✅ |
+| `--ship-*` | `Ship*` (same shape) | ✅ | ✅ (ShipCompany **Required**) | ✅ |
+| `--enable-address-validation` | `EnableAddressValidation` | ✅ | ✅ | ✅ |
+| `--date-required` | `DateRequired` | ✅ | ✅ | ✅ |
+| `--sales-person` | `SalesPerson` | ✅ | ✅ | ✅ |
+| `--sales-channel` | `SalesChannel` | ✅ | ✅ | ✅ |
+| `--ship-instructions` | `ShipInstructions` | ✅ | ✅ | ✅ |
+| `--internal-order-notes` | `InternalOrderNotes` | ✅ | ✅ | ✅ |
+| `--order-status` | `OrderStatus` | ✅ enum | ✅ enum | ✅ |
+| `--order-approval` (via `--field`) | `OrderApproval` | ✅ | ✅ | ✅ |
+| `--sticky-note-title` | `StickyNoteTitle` | ✅ | ✅ | ✅ |
+| `--sticky-note` | `StickyNote` | ✅ | ✅ | ✅ |
+
+### Add-only fields (`orders create`)
+
+| CLI flag | API field | Docs | Result |
+|---|---|---|---|
+| `--order-type` | `OrderType` | ✅ (sales, dropshipping, quote) | ✅ |
+| `--user-group` | `UserGroup` | ✅ | ✅ |
+| `--document-template` (via `--field`) | `DocumentTemplate` | ✅ | ✅ |
+| `--date-placed` | `DatePlaced` | ✅ | ✅ |
+| `--date-invoiced` | `DateInvoiced` | ✅ | ✅ |
+| `--date-due` | `DateDue` | ✅ | ✅ |
+| `--earn-rewards` (via `--field`) | `EarnRewards` | ✅ | ✅ |
+| `--payment-method` | `PaymentMethod` | ✅ | ✅ |
+| `--payment-terms` | `PaymentTerms` | ✅ | ✅ |
+| `--tax-inclusive` | `TaxInclusive` | ✅ | ✅ |
+| `--tax-free-shipping` (via `--field`) | `TaxFreeShipping` | ✅ | ✅ |
+| `--shipping-method` | `ShippingMethod` | ✅ | ✅ |
+| `--shipping-cost` | `ShippingCost` | ✅ | ✅ |
+| `--shipping-discount` | `ShippingDiscount` | ✅ | ✅ |
+| `--signature-required` (via `--field`) | `SignatureRequired` | ✅ | ✅ |
+| `--currency-code` | `CurrencyCode` | ✅ (3) | ✅ |
+| `--line <SKU:QTY[:PRICE]>` | `OrderLine[].{SKU,Quantity,UnitPrice}` | ✅ (SKU & Quantity required) | ✅ |
+
+### Update-only fields (`orders update`)
+
+| CLI flag | API field | Docs | Result |
+|---|---|---|---|
+| `--deduce-warehouse` | `DeduceWarehouse` | ✅ | ✅ |
+| `--pick-status` | `PickStatus` | ✅ (Complete, Incomplete) | ✅ |
+| `--export-status` | `ExportStatus` | ✅ (Pending, Exported) | ✅ |
+| `--send-order-email` | `SendOrderEmail` | ✅ (tracking, receipt) | ✅ |
+| `--sku` + `--tracking-number` + `--tracking-shipping-method` + `--date-shipped` | `OrderLine[].TrackingDetails.{ShippingMethod,TrackingNumber,DateShipped}` | ✅ nested per updateorder.md example | ✅ |
+
+### Request body shape
+
+| Item | CLI | Docs | Result |
+|---|---|---|---|
+| Wrapper | `{Order: [{...}]}` | `{Order: [{...}]}` | ✅ |
+| Response key | `Order` (already in `RESPONSE_KEYS`) | `{Order: {OrderID: "..."}}` | ✅ |
+| Order address field names (`BillStreet1`, `BillContactPhone`) | matches | **Differs from customers** — customers use `BillStreetLine1` / `BillPhone`. Intentional separation in `order-helpers.ts` vs `customer-helpers.ts`. | ✅ |
+
+No mismatches found between the wired commands and the scraped docs for Tier 1 orders coverage.
