@@ -1,6 +1,6 @@
 # Coverage Gaps — CLI vs. Neto API
 
-**Generated:** 2026-04-18
+**Generated:** 2026-04-18 (Tier 2 in progress: warehouses, suppliers, categories done)
 **Method:** Cross-reference of `src/commands/*.ts` and `src/commands/api.ts` (`KNOWN_ACTIONS`) against `../neto-docs-engineer/docs/` (48 scraped action docs).
 **Re-run:** `/review-cli`
 
@@ -25,78 +25,78 @@
 | `AddItem` | products | `products create` | ✅ | — |
 | `UpdateItem` | products | `products update / edit` | ✅ | — |
 | `GetOrder` | orders-invoices | `orders list / get / export` | ✅ | — |
-| `AddOrder` | orders-invoices | escape-hatch | ⚠️ | **Tier 1** |
-| `UpdateOrder` | orders-invoices | escape-hatch | ⚠️ | **Tier 1** |
+| `AddOrder` | orders-invoices | `orders create` | ✅ | — |
+| `UpdateOrder` | orders-invoices | `orders update` | ✅ | — |
 | `GetCustomer` | customers | `customers list / get` | ✅ | — |
-| `AddCustomer` | customers | escape-hatch | ⚠️ | **Tier 1** |
-| `UpdateCustomer` | customers | escape-hatch | ⚠️ | **Tier 1** |
-| `GetCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
-| `AddCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
-| `UpdateCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
-| `GetVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
-| `AddVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
-| `UpdateVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
-| `RedeemVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
-| `GetSupplier` | suppliers | escape-hatch | ⚠️ | **Tier 2** |
-| `AddSupplier` | suppliers | escape-hatch | ⚠️ | **Tier 2** |
-| `UpdateSupplier` | suppliers | escape-hatch | ⚠️ | **Tier 2** |
-| `GetWarehouse` | warehouses | escape-hatch | ⚠️ | **Tier 2** |
-| `AddWarehouse` | warehouses | escape-hatch | ⚠️ | **Tier 2** |
-| `UpdateWarehouse` | warehouses | escape-hatch | ⚠️ | **Tier 2** |
-| `GetContent` | content | escape-hatch | ⚠️ | Tier 3 |
-| `AddContent` | content | escape-hatch | ⚠️ | Tier 3 |
-| `UpdateContent` | content | escape-hatch | ⚠️ | Tier 3 |
-| `GetRma` | rma | escape-hatch | ⚠️ | Tier 3 |
-| `AddRma` | rma | escape-hatch | ⚠️ | Tier 3 |
-| `GetPayment` | payments | escape-hatch | ⚠️ | Tier 3 |
-| `AddPayment` | payments | escape-hatch | ⚠️ | Tier 3 |
-| `GetPaymentMethods` | payments | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `GetShippingMethods` | shipping | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `GetShippingQuote` | shipping | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `GetCurrencySettings` | currency | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `UpdateCurrencySettings` | currency | escape-hatch | ⚠️ | Tier 3 |
-| `GetCart` | abandoned-cart | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `AddCustomerLog` | customers | escape-hatch | ⚠️ | Tier 3 |
-| `UpdateCustomerLog` | customers | escape-hatch | ⚠️ | Tier 3 |
-| `GetAccountingSystemRelatedAccounts` | accounting-system | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `AddAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
-| `UpdateAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
-| `DeleteAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
+| `AddCustomer` | customers | `customers create` | ✅ | — |
+| `UpdateCustomer` | customers | `customers update` | ✅ | — |
+| `GetCategory` | categories | `categories list / get` | ✅ | — |
+| `AddCategory` | categories | `categories create` | ✅ | — |
+| `UpdateCategory` | categories | `categories update` | ✅ | — |
+| `GetVoucher` | voucher | `vouchers list / get` | ✅ | — |
+| `AddVoucher` | voucher | `vouchers create` | ✅ | — |
+| `UpdateVoucher` | voucher | `vouchers update` | ✅ | — |
+| `RedeemVoucher` | voucher | `vouchers redeem` | ✅ | — |
+| `GetSupplier` | suppliers | `suppliers list / get` | ✅ | — |
+| `AddSupplier` | suppliers | `suppliers create` | ✅ | — |
+| `UpdateSupplier` | suppliers | `suppliers update` | ✅ | — |
+| `GetWarehouse` | warehouses | `warehouses list / get` | ✅ | — |
+| `AddWarehouse` | warehouses | `warehouses create` | ✅ | — |
+| `UpdateWarehouse` | warehouses | `warehouses update` | ✅ | — |
+| `GetContent` | content | `content list / get` | ✅ | — |
+| `AddContent` | content | `content create` | ✅ | — |
+| `UpdateContent` | content | `content update` | ✅ | — |
+| `GetRma` | rma | `rma list / get` | ✅ | — |
+| `AddRma` | rma | `rma create` | ✅ | — |
+| `GetPayment` | payments | `payments list / get` | ✅ | — |
+| `AddPayment` | payments | `payments create` | ✅ | — |
+| `GetPaymentMethods` | payments | `payments methods` | ✅ 🔎 | — |
+| `GetShippingMethods` | shipping | `shipping methods` | ✅ 🔎 | — |
+| `GetShippingQuote` | shipping | `shipping quote` | ✅ 🔎 | — |
+| `GetCurrencySettings` | currency | `currency get` | ✅ 🔎 | — |
+| `UpdateCurrencySettings` | currency | `currency update` | ✅ | — |
+| `GetCart` | abandoned-cart | `cart list / get` | ✅ 🔎 | — |
+| `AddCustomerLog` | customers | `customers log add` | ✅ | — |
+| `UpdateCustomerLog` | customers | `customers log update` | ✅ | — |
+| `GetAccountingSystemRelatedAccounts` | accounting-system | `accounting accounts list / get` | ✅ 🔎 | — |
+| `AddAccountingSystemRelatedAccount` | accounting-system | `accounting accounts create` | ✅ | — |
+| `UpdateAccountingSystemRelatedAccount` | accounting-system | `accounting accounts update` | ✅ | — |
+| `DeleteAccountingSystemRelatedAccount` | accounting-system | `accounting accounts delete` | ✅ | — |
 
-**Totals:** 9 ✅ dedicated · 32 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
+**Totals:** 45 ✅ dedicated · 0 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
 
 ---
 
 ## Missing-command shortlist
 
-### Tier 1 — complete existing CRUD (quick wins)
+### Tier 1 — complete existing CRUD (quick wins) — **DONE**
 
-Parity with `products`, using the same patterns (list/get/export already exist on reads; only writes are missing):
+Parity with `products`, using the same patterns:
 
-- **`neto customers create`** (`AddCustomer`) — `--username`, `--email`, `--first-name`, `--last-name`, `--type <Customer|Prospect>`, address flags, `--from-json`, `--dry-run`
-- **`neto customers update <username>`** (`UpdateCustomer`) — mirror of create, same flag shape
-- **`neto orders create`** (`AddOrder`) — minimal flags + `--from-json` (order payloads are complex; JSON-first is fine)
-- **`neto orders update <id>`** (`UpdateOrder`) — `--status`, `--tracking`, `--from-json`, `--dry-run`
+- ✅ **`neto customers create`** (`AddCustomer`) — done 2026-04-18
+- ✅ **`neto customers update <username>`** (`UpdateCustomer`) — done 2026-04-18
+- ✅ **`neto orders create`** (`AddOrder`) — done 2026-04-18. Ergonomic flags for core fields + addresses, `--line SKU:QTY[:PRICE]` repeatable shorthand, `--from-json` for complex OrderLine payloads.
+- ✅ **`neto orders update <id>`** (`UpdateOrder`) — done 2026-04-18. Status/tracking/notes flags; tracking attaches to OrderLine via `--sku` + `--tracking-number` + `--tracking-shipping-method`.
 
-**Reuse:** `buildItemPayload` pattern in `src/lib/product-helpers.ts` generalises cleanly. Extract into `buildPayload(flagMap, opts)` and one shared `readJsonInput` helper.
+**Shared helper:** `buildPayload(flagMap, opts)` in [src/lib/payload-helpers.ts](../../src/lib/payload-helpers.ts) — reused by customers, orders, and ready for every Tier 2 resource.
 
 ### Tier 2 — commonly-used resources (real user demand)
 
 - **`neto categories list / get / create / update`** — taxonomy work
-- **`neto vouchers list / get / create / update / redeem`** — voucher management (`RedeemVoucher` is the interesting one; no equivalent in other resources)
+- ✅ **`neto vouchers list / get / create / update / redeem`** — done 2026-04-18. `redeem` is unique — maps to `RedeemVoucher`, requires `--order-id` + `--date-redeemed`. `update` requires all 4 API fields (VoucherID, Email, IsRedeemed, Owner).
 - **`neto suppliers list / get / create / update`** — supplier maintenance
 - **`neto warehouses list / get / create / update`** — multi-warehouse stores
 
-### Tier 3 — niche / low-traffic
+### Tier 3 — niche / low-traffic — **DONE**
 
-- **`neto content list / get / create / update`** — CMS pages
-- **`neto rma list / get / create`** — returns (no Update per docs)
-- **`neto payments list / get / create`** + **`neto payments methods`** (read-only)
-- **`neto shipping methods`** + **`neto shipping quote`** (both read-only, quote takes a cart payload)
-- **`neto currency get / update`** (singleton — no list)
-- **`neto cart get <sessionid>`** (read-only abandoned-cart lookup)
-- **`neto customers log add / update`** — interaction notes on a customer
-- **`neto accounting accounts list / create / update / delete`** — ERP integration
+- ✅ **`neto content list / get / create / update`** — done 2026-04-18
+- ✅ **`neto rma list / get / create`** — done 2026-04-18. No Update per docs. AddRma returns empty response body (no RmaID).
+- ✅ **`neto payments list / get / create`** + **`neto payments methods`** — done 2026-04-18
+- ✅ **`neto shipping methods`** + **`neto shipping quote`** — done 2026-04-18. Quote takes `--line SKU:QTY[:PRICE]` repeatable flags.
+- ✅ **`neto currency get / update`** — done 2026-04-18. Singleton resource, no list.
+- ✅ **`neto cart list / get`** — done 2026-04-18. `list` defaults to Abandoned; `--all` returns all statuses.
+- ✅ **`neto customers log add / update`** — done 2026-04-18. Body shape `{ CustomerLogs: { CustomerLog: [...] } }` — distinct from other resources.
+- ✅ **`neto accounting accounts list / get / create / update / delete`** — done 2026-04-18. First resource with `delete`; uses `--yes` confirmation flag. All fields are snake_case per the API.
 
 ---
 

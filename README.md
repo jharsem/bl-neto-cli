@@ -297,6 +297,74 @@ neto orders export > orders.json
 neto orders export --status Dispatched --date-from 2025-01-01 > dispatched-2025.json
 ```
 
+#### `neto orders create`
+
+Create a new order. `--email`, `--bill-company`, and at least one `--line SKU:QTY` are required (the Neto API also requires `ShipCompany`; use `--ship-same-as-bill` or `--ship-company`). Use `--from-json` for complex OrderLine payloads (ExtraOptions, KitComponents, warehouse targeting).
+
+Key options:
+
+| Option | Description |
+|---|---|
+| `--email <addr>` | Customer email (required) |
+| `--username <u>` | Existing customer username |
+| `--bill-company <c>`, `--bill-first-name`, `--bill-last-name`, `--bill-street`, `--bill-street2`, `--bill-city`, `--bill-state`, `--bill-postcode`, `--bill-country`, `--bill-phone` | Billing address |
+| `--ship-same-as-bill` | Copy every `Bill*` field to its `Ship*` equivalent |
+| `--ship-company`, `--ship-street`, … | Shipping address overrides (same shape) |
+| `--line <SKU:QTY[:PRICE]>` | Order line (repeatable) |
+| `--order-type <t>` | `sales`, `dropshipping`, or `quote` |
+| `--order-status <s>` | Initial status (e.g. `New`, `Pick`) |
+| `--payment-method <m>`, `--shipping-method <m>`, `--shipping-cost <n>` | |
+| `--currency-code <c>` | 3-letter currency code |
+| `--date-placed <dt>`, `--date-required <dt>` | |
+| `--field <Key=Value>` | Set any documented Order field (repeatable) |
+| `--from-json [path]` | Read one or more orders from JSON file or stdin |
+| `--dry-run` | Print the payload without calling the API |
+
+```bash
+neto orders create \
+  --email jane@example.com --bill-company Acme \
+  --bill-first-name Jane --bill-last-name Doe \
+  --bill-street "1 Main St" --bill-city Sydney --bill-country AU \
+  --ship-same-as-bill \
+  --line SKU-1:2 --line SKU-2:1:9.99 \
+  --order-type sales --dry-run
+
+neto orders create --from-json order.json
+```
+
+#### `neto orders update <id>`
+
+Update an existing order. Typical flows: change status, attach tracking, edit notes.
+
+| Option | Description |
+|---|---|
+| `--order-status <s>` | New status (e.g. `Dispatched`, `Cancelled`) |
+| `--send-order-email <t>` | `tracking` or `receipt` — send email after update |
+| `--sku <sku>` | Target OrderLine SKU for tracking details |
+| `--tracking-number <n>` | Tracking number (attached to the OrderLine) |
+| `--tracking-shipping-method <m>` | Shipping method for tracking (must match a Neto shipping service) |
+| `--date-shipped <dt>` | DateShipped for the tracking block |
+| `--pick-status <s>`, `--export-status <s>`, `--deduce-warehouse <bool>` | Fulfilment flags |
+| `--bill-*` / `--ship-*` / `--ship-same-as-bill` | Edit addresses |
+| `--ship-instructions`, `--internal-order-notes`, `--sticky-note`, `--sticky-note-title` | |
+| `--field <Key=Value>` | Any other Order field |
+| `--from-json [path]` | Replace the whole payload from JSON |
+| `--dry-run` | Print without sending |
+
+```bash
+# Mark dispatched with tracking and email the customer
+neto orders update N1000 \
+  --order-status Dispatched \
+  --sku ABC-123 \
+  --tracking-number C123345 \
+  --tracking-shipping-method "Australia Post eParcel" \
+  --date-shipped "2026-04-18 10:00:00" \
+  --send-order-email tracking
+
+# Quick status change
+neto orders update N1000 --order-status "On Hold"
+```
+
 ---
 
 ### `neto customers`
@@ -334,6 +402,92 @@ Get detailed information for a single customer. Looks up by username first, then
 neto customers get john_doe
 neto customers get 12345
 neto customers get john_doe --json
+```
+
+#### `neto customers create`
+
+Create a new customer. Supports common flags, nested billing/shipping addresses, `--field Key=Value` for any API field, or `--from-json` for full control.
+
+| Option | Description | Default |
+|---|---|---|
+| `--username <u>` | Customer username (required unless `--from-json`) | |
+| `--type <type>` | `Customer` or `Prospect` | |
+| `--password <p>` | Password | |
+| `--email <addr>` | Email address | |
+| `--secondary-email <addr>` | Secondary email | |
+| `--first-name <n>` | First name | |
+| `--last-name <n>` | Last name | |
+| `--company <c>` | Company name | |
+| `--phone <p>` | Phone | |
+| `--fax <f>` | Fax | |
+| `--date-of-birth <YYYY-MM-DD>` | Date of birth | |
+| `--gender <g>` | Gender | |
+| `--user-group <id>` | User group | |
+| `--credit-limit <amount>` | Credit limit | |
+| `--active <bool>` | Is active (True/False) | |
+| `--newsletter <bool>` | Newsletter subscriber | |
+| `--sms <bool>` | SMS subscriber | |
+| `--abn <abn>` | ABN | |
+| `--internal-notes <text>` | Internal notes | |
+| `--street <s>` | Billing street line 1 | |
+| `--street2 <s>` | Billing street line 2 | |
+| `--city <c>` | Billing city | |
+| `--state <s>` | Billing state | |
+| `--postcode <p>` | Billing postcode | |
+| `--country <c>` | Billing country | |
+| `--ship-same-as-bill` | Copy billing address to shipping | |
+| `--ship-street <s>` | Shipping street line 1 | |
+| `--ship-street2 <s>` | Shipping street line 2 | |
+| `--ship-city <c>` | Shipping city | |
+| `--ship-state <s>` | Shipping state | |
+| `--ship-postcode <p>` | Shipping postcode | |
+| `--ship-country <c>` | Shipping country | |
+| `--ship-first-name <n>` | Shipping first name (if different) | |
+| `--ship-last-name <n>` | Shipping last name (if different) | |
+| `--field <Key=Value>` | Set any API field (repeatable) | |
+| `--from-json [path]` | Read from JSON file or stdin | |
+| `--dry-run` | Show payload without sending | |
+| `--json` | Output response as JSON | |
+
+```bash
+# Simple create
+neto customers create --username jdoe --email jane@example.com --first-name Jane --last-name Doe --type Customer
+
+# With address, shipping same as billing
+neto customers create --username jdoe --email jane@example.com \
+  --first-name Jane --last-name Doe \
+  --street "1 Example St" --city Sydney --state NSW --postcode 2000 --country AU \
+  --ship-same-as-bill
+
+# Custom fields via --field
+neto customers create --username jdoe --email jane@example.com \
+  --field Classification1=VIP --field UserCustom01=referral
+
+# From JSON file
+neto customers create --from-json customer.json
+
+# Preview without sending
+neto customers create --username jdoe --email jane@example.com --dry-run
+```
+
+#### `neto customers update <username>`
+
+Update an existing customer. Same flags as `create` (all optional), with username provided as argument.
+
+> **⚠ Address replacement is wholesale, not merge.** If you pass *any* billing or shipping flag, the Neto API replaces the entire `BillingAddress` / `ShippingAddress` block with exactly what you send — unsent child fields (BillFirstName, BillCompany, etc.) are blanked. When editing an address, resend every field you want to keep, or fetch the record with `neto customers get <username> --json`, edit it, and push it back via `--from-json`.
+
+```bash
+# Update credit limit
+neto customers update jdoe --credit-limit 5000
+
+# Update email and a custom field
+neto customers update jdoe --email jane.new@example.com --field Classification1=VIP
+
+# Update shipping address only
+neto customers update jdoe --ship-street "2 New Rd" --ship-city Melbourne
+
+# Preview changes
+neto customers update jdoe --credit-limit 5000 --dry-run
 ```
 
 ---

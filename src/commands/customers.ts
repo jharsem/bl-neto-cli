@@ -4,6 +4,8 @@ import ora from 'ora';
 import { loadConfig, hasConfig } from '../lib/config.js';
 import { NetoApiClient } from '../lib/client.js';
 import { outputTable, outputJson, outputDetail, printWarnings, parseFields, type ColumnDef } from '../lib/output.js';
+import { collectField, readJsonInput } from '../lib/payload-helpers.js';
+import { buildCustomerPayload } from '../lib/customer-helpers.js';
 
 const DEFAULT_LIST_FIELDS = [
   'Username', 'ID', 'EmailAddress', 'FirstName', 'LastName',
@@ -138,5 +140,251 @@ export function registerCustomersCommand(program: Command): void {
       }
     });
 
+  // Common flag set for create/update (keeps the two command definitions tight)
+  const addWriteFlags = (cmd: Command) =>
+    cmd
+      .option('--username <u>', 'Customer username')
+      .option('--type <type>', 'Customer or Prospect')
+      .option('--password <p>', 'Password')
+      .option('--email <addr>', 'Email address')
+      .option('--secondary-email <addr>', 'Secondary email')
+      .option('--first-name <n>', 'First name')
+      .option('--last-name <n>', 'Last name')
+      .option('--company <c>', 'Company name')
+      .option('--phone <p>', 'Phone')
+      .option('--fax <f>', 'Fax')
+      .option('--date-of-birth <YYYY-MM-DD>', 'Date of birth')
+      .option('--gender <g>', 'Gender')
+      .option('--user-group <id>', 'User group')
+      .option('--credit-limit <amount>', 'Credit limit')
+      .option('--active <bool>', 'Is active (True/False)')
+      .option('--newsletter <bool>', 'Newsletter subscriber (True/False)')
+      .option('--sms <bool>', 'SMS subscriber (True/False)')
+      .option('--abn <abn>', 'ABN')
+      .option('--internal-notes <text>', 'Internal notes')
+      .option('--street <s>', 'Billing street line 1')
+      .option('--street2 <s>', 'Billing street line 2')
+      .option('--city <c>', 'Billing city')
+      .option('--state <s>', 'Billing state')
+      .option('--postcode <p>', 'Billing postcode')
+      .option('--country <c>', 'Billing country')
+      .option('--bill-company <c>', 'Billing-address company (overrides --company for this block)')
+      .option('--bill-phone <p>', 'Billing-address phone (overrides --phone for this block)')
+      .option('--bill-fax <f>', 'Billing-address fax (overrides --fax for this block)')
+      .option('--ship-same-as-bill', 'Copy billing address to shipping')
+      .option('--ship-street <s>', 'Shipping street line 1')
+      .option('--ship-street2 <s>', 'Shipping street line 2')
+      .option('--ship-city <c>', 'Shipping city')
+      .option('--ship-state <s>', 'Shipping state')
+      .option('--ship-postcode <p>', 'Shipping postcode')
+      .option('--ship-country <c>', 'Shipping country')
+      .option('--ship-first-name <n>', 'Shipping first name (if different)')
+      .option('--ship-last-name <n>', 'Shipping last name (if different)')
+      .option('--ship-company <c>', 'Shipping-address company')
+      .option('--ship-phone <p>', 'Shipping-address phone')
+      .option('--ship-fax <f>', 'Shipping-address fax')
+      .option('--field <key=value>', 'Set any API field (repeatable)', collectField, [])
+      .option('--from-json [path]', 'Read from JSON file or stdin')
+      .option('--dry-run', 'Show payload without sending')
+      .option('--json', 'Output response as JSON');
+
+  addWriteFlags(
+    customers
+      .command('create')
+      .description('Create a new customer')
+  ).action(async (opts) => {
+    const client = requireAuth();
+
+    let items: Record<string, unknown>[];
+
+    if (opts.fromJson !== undefined) {
+      try {
+        items = await readJsonInput(opts.fromJson);
+      } catch (err: any) {
+        console.error(chalk.red(`Error reading JSON: ${err.message}`));
+        process.exit(1);
+      }
+    } else {
+      if (!opts.username) {
+        console.error(chalk.red('Error: --username is required. Use --from-json for bulk creation.'));
+        process.exit(1);
+      }
+      try {
+        items = [buildCustomerPayload(opts)];
+      } catch (err: any) {
+        console.error(chalk.red(`Error: ${err.message}`));
+        process.exit(1);
+      }
+    }
+
+    const body = { Customer: items };
+
+    if (opts.dryRun) {
+      console.log(chalk.bold('Dry run — would send:'));
+      outputJson(body);
+      return;
+    }
+
+    const spinner = ora(`Creating ${items.length} customer${items.length !== 1 ? 's' : ''}...`).start();
+
+    try {
+      const res = await client.call('AddCustomer', body);
+      printWarnings(res);
+      spinner.stop();
+
+      if (opts.json) {
+        outputJson(res);
+      } else {
+        const created = res.Customer;
+        const list = Array.isArray(created) ? created : created ? [created] : [];
+        if (list.length === 0) {
+          console.log(chalk.yellow('Call succeeded but response contained no Customer record.'));
+        } else {
+          for (const c of list as any[]) {
+            console.log(chalk.green(`Created customer "${c.Username || ''}"`));
+          }
+        }
+      }
+    } catch (err: any) {
+      spinner.fail(err.message);
+      process.exit(1);
+    }
+  });
+
+  addWriteFlags(
+    customers
+      .command('update <username>')
+      .description('Update an existing customer')
+  ).action(async (username, opts) => {
+    const client = requireAuth();
+
+    let items: Record<string, unknown>[];
+
+    if (opts.fromJson !== undefined) {
+      try {
+        items = await readJsonInput(opts.fromJson);
+        if (items.length === 1 && !items[0].Username) {
+          items[0].Username = username;
+        }
+      } catch (err: any) {
+        console.error(chalk.red(`Error reading JSON: ${err.message}`));
+        process.exit(1);
+      }
+    } else {
+      let payload: Record<string, unknown>;
+      try {
+        payload = buildCustomerPayload(opts, username);
+      } catch (err: any) {
+        console.error(chalk.red(`Error: ${err.message}`));
+        process.exit(1);
+      }
+      const fieldCount = Object.keys(payload).filter(k => k !== 'Username').length;
+      if (fieldCount === 0) {
+        console.error(chalk.red('Error: No fields to update. Provide flags, --field, or --from-json.'));
+        process.exit(1);
+      }
+      items = [payload];
+    }
+
+    const body = { Customer: items };
+
+    if (opts.dryRun) {
+      console.log(chalk.bold('Dry run — would send:'));
+      outputJson(body);
+      return;
+    }
+
+    const spinner = ora(`Updating customer ${username}...`).start();
+
+    try {
+      const res = await client.call('UpdateCustomer', body);
+      printWarnings(res);
+      spinner.stop();
+
+      if (opts.json) {
+        outputJson(res);
+      } else {
+        const fieldCount = Object.keys(items[0]).filter(k => k !== 'Username').length;
+        console.log(chalk.green(`Updated customer ${username} (${fieldCount} field${fieldCount !== 1 ? 's' : ''} changed)`));
+      }
+    } catch (err: any) {
+      spinner.fail(err.message);
+      process.exit(1);
+    }
+  });
+
+  // neto customers log add / update
+  // Verified against ../neto-docs-engineer/docs/customers/{addcustomerlog,updatecustomerlog}.md
+  // Body shape: { CustomerLogs: { CustomerLog: [{...}] } } — distinct from other resources
+  const log = customers.command('log').description('Manage customer interaction logs');
+
+  const addLogFlags = (cmd: Command) =>
+    cmd
+      .option('--username <u>', 'Customer username')
+      .option('--customer-name <n>', 'Customer name')
+      .option('--allocated-to <u>', 'Staff member to allocate to')
+      .option('--follow-up-type <t>', 'Follow-up type')
+      .option('--last-contacted <dt>', 'Last contacted date (YYYY-MM-DD HH:MM:SS)')
+      .option('--follow-up-date <dt>', 'Required follow-up date (YYYY-MM-DD HH:MM:SS)')
+      .option('--status <s>', 'Status: "Require Recontact", "Recontacting", or "Completed"')
+      .option('--notes <t>', 'Notes')
+      .option('--dry-run', 'Show payload without sending')
+      .option('--json', 'Output response as JSON');
+
+  addLogFlags(log.command('add').description('Add a customer log entry')).action(async (opts) => {
+    const client = requireAuth();
+    const entry: Record<string, unknown> = {};
+    if (opts.username) entry.Username = opts.username;
+    if (opts.customerName) entry.CustomerName = opts.customerName;
+    if (opts.allocatedTo) entry.AllocatedTo = opts.allocatedTo;
+    if (opts.followUpType) entry.FollowUpType = opts.followUpType;
+    if (opts.lastContacted) entry.LastContacted = opts.lastContacted;
+    if (opts.followUpDate) entry.DateRequiredFollowUp = opts.followUpDate;
+    if (opts.status) entry.Status = opts.status;
+    if (opts.notes) entry.Notes = opts.notes;
+    const body = { CustomerLogs: { CustomerLog: [entry] } };
+    if (opts.dryRun) { console.log(chalk.bold('Dry run — would send:')); outputJson(body); return; }
+    const spinner = ora('Adding customer log entry...').start();
+    try {
+      const res = await client.call('AddCustomerLog', body);
+      printWarnings(res);
+      spinner.stop();
+      if (opts.json) {
+        outputJson(res);
+      } else {
+        const created = res.CustomerLog;
+        const list = Array.isArray(created) ? created : created ? [created] : [];
+        if (list.length > 0) {
+          console.log(chalk.green(`Added customer log entry ${list[0].LogID}`));
+        } else {
+          console.log(chalk.green('Added customer log entry.'));
+        }
+      }
+    } catch (err: any) { spinner.fail(err.message); process.exit(1); }
+  });
+
+  addLogFlags(log.command('update <log-id>').description('Update a customer log entry by LogID')).action(async (logId, opts) => {
+    const client = requireAuth();
+    const entry: Record<string, unknown> = { LogID: logId };
+    if (opts.customerName) entry.CustomerName = opts.customerName;
+    if (opts.allocatedTo) entry.AllocatedTo = opts.allocatedTo;
+    if (opts.followUpType) entry.FollowUpType = opts.followUpType;
+    if (opts.lastContacted) entry.LastContacted = opts.lastContacted;
+    if (opts.followUpDate) entry.DateRequiredFollowUp = opts.followUpDate;
+    if (opts.status) entry.Status = opts.status;
+    if (opts.notes) entry.Notes = opts.notes;
+    if (Object.keys(entry).length === 1) { console.error(chalk.red('Error: No fields to update.')); process.exit(1); }
+    const body = { CustomerLogs: { CustomerLog: [entry] } };
+    if (opts.dryRun) { console.log(chalk.bold('Dry run — would send:')); outputJson(body); return; }
+    const spinner = ora(`Updating customer log ${logId}...`).start();
+    try {
+      const res = await client.call('UpdateCustomerLog', body);
+      printWarnings(res);
+      spinner.stop();
+      opts.json ? outputJson(res) : console.log(chalk.green(`Updated customer log ${logId}`));
+    } catch (err: any) { spinner.fail(err.message); process.exit(1); }
+  });
+
+  log.action(() => log.outputHelp());
   customers.action(() => customers.outputHelp());
 }
