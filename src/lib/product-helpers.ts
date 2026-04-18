@@ -90,9 +90,16 @@ export function buildItemPayload(
     item.Categories = opts.category.map((id: string) => ({ CategoryID: id }));
   }
 
-  // Special handling: --quantity → WarehouseQuantity
+  // Special handling: --quantity + --warehouse-id → nested WarehouseQuantity element
+  // (per docs/products/additem.md: WarehouseQuantity is a nested type with required WarehouseID + Quantity)
   if (opts.quantity !== undefined) {
-    item.DefaultQuantity = opts.quantity;
+    if (opts.warehouseId === undefined) {
+      throw new Error('--quantity requires --warehouse-id. Use `neto api GetWarehouse --filter \'{"OutputSelector":["WarehouseID","Name"]}\'` to list warehouses.');
+    }
+    item.WarehouseQuantity = [{
+      WarehouseID: opts.warehouseId,
+      Quantity: opts.quantity,
+    }];
   }
 
   // Merge --field entries (explicit flags take precedence)

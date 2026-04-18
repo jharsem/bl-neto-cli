@@ -48,7 +48,7 @@ export function registerOrdersCommand(program: Command): void {
     .option('--limit <n>', 'Number of results', '50')
     .option('--page <n>', 'Page number (0-indexed)', '0')
     .option('--fields <fields>', 'Comma-separated fields to return')
-    .option('--status <status>', 'Filter by order status (New, Pick, Pack, Dispatched, etc.)')
+    .option('--status <status>', 'Filter by order status (New, New Backorder, Backorder Approved, Pick, Pack, Pending Pickup, Pending Dispatch, Dispatched, On Hold, Quote, Cancelled, Uncommitted)')
     .option('--date-from <date>', 'Filter orders placed from date (YYYY-MM-DD)')
     .option('--date-to <date>', 'Filter orders placed to date (YYYY-MM-DD)')
     .option('--json', 'Output as JSON')
@@ -67,7 +67,7 @@ export function registerOrdersCommand(program: Command): void {
           filter.OrderStatus = [opts.status];
         } else {
           // Default: show all recent active statuses
-          filter.OrderStatus = ['New', 'Pick', 'Pack', 'Pending Pickup', 'Pending Dispatch', 'Dispatched', 'On Hold'];
+          filter.OrderStatus = ['New', 'New Backorder', 'Backorder Approved', 'Pick', 'Pack', 'Pending Pickup', 'Pending Dispatch', 'Dispatched', 'On Hold'];
         }
         if (opts.dateFrom) filter.DatePlacedFrom = opts.dateFrom;
         if (opts.dateTo) filter.DatePlacedTo = opts.dateTo;
@@ -157,7 +157,7 @@ export function registerOrdersCommand(program: Command): void {
           if (opts.status) {
             filter.OrderStatus = [opts.status];
           } else {
-            filter.OrderStatus = ['New', 'Pick', 'Pack', 'Pending Pickup', 'Pending Dispatch', 'Dispatched', 'On Hold'];
+            filter.OrderStatus = ['New', 'New Backorder', 'Backorder Approved', 'Pick', 'Pack', 'Pending Pickup', 'Pending Dispatch', 'Dispatched', 'On Hold'];
           }
           if (opts.dateFrom) filter.DatePlacedFrom = opts.dateFrom;
           if (opts.dateTo) filter.DatePlacedTo = opts.dateTo;

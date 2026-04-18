@@ -47,6 +47,12 @@ const RESPONSE_KEYS: Record<string, string> = {
   GetCurrencySettings: 'CurrencySettings',
   UpdateCurrencySettings: 'CurrencySettings',
   GetCart: 'Cart',
+  AddCustomerLog: 'CustomerLog',
+  UpdateCustomerLog: 'CustomerLog',
+  GetAccountingSystemRelatedAccounts: 'RelatedAccount',
+  AddAccountingSystemRelatedAccount: 'RelatedAccount',
+  UpdateAccountingSystemRelatedAccount: 'RelatedAccount',
+  DeleteAccountingSystemRelatedAccount: 'RelatedAccount',
 };
 
 export function getResponseKey(action: string): string | undefined {

@@ -89,3 +89,56 @@ Credentials stored at `~/.neto-cli/config.json` (outside repo). Contains:
 - Theme management uses SFTP, not the API — Neto doesn't expose theme files through its REST API
 - All commands support `--json` for machine-readable output
 - The `neto api <action>` command is an escape hatch for any API action not wrapped by a dedicated command
+
+## Reference Documentation
+
+The scraped Maropost/Neto developer docs live locally at `../neto-docs-engineer/docs/` (sibling repo). **Prefer reading these files over guessing field names, inventing filters, or fetching live docs** — they're the authoritative source for:
+
+- Filter keys and types for every `Get*` action
+- Full OutputSelector lists (often 50–150 fields per action)
+- Write payload schemas for every `Add*` / `Update*` action
+- Enum values (e.g. OrderStatus, Customer Type)
+- Nested element structures (addresses, order lines, images, categories)
+
+### API action → doc path
+
+All 48 action docs follow `docs/<category>/<action>.md` (lowercase filename, no hyphens). Quick lookup:
+
+| Category folder | Actions (files) |
+|---|---|
+| `products/` | `getitem.md`, `additem.md`, `updateitem.md` |
+| `orders-invoices/` | `getorder.md`, `addorder.md`, `updateorder.md` |
+| `customers/` | `getcustomer.md`, `addcustomer.md`, `updatecustomer.md`, `addcustomerlog.md`, `updatecustomerlog.md` |
+| `categories/` | `getcategory.md`, `addcategory.md`, `updatecategory.md` |
+| `content/` | `getcontent.md`, `addcontent.md`, `updatecontent.md` |
+| `payments/` | `getpayment.md`, `addpayment.md`, `getpaymentmethods.md` |
+| `warehouses/` | `getwarehouse.md`, `addwarehouse.md`, `updatewarehouse.md` |
+| `suppliers/` | `getsupplier.md`, `addsupplier.md`, `updatesupplier.md` |
+| `voucher/` | `getvoucher.md`, `addvoucher.md`, `updatevoucher.md`, `redeemvoucher.md` |
+| `rma/` | `getrma.md`, `addrma.md` |
+| `shipping/` | `getshippingmethods.md`, `getshippingquote.md` |
+| `currency/` | `getcurrencysettings.md`, `updatecurrencysettings.md` |
+| `abandoned-cart/` | `getcart.md` |
+| `accounting-system/` | `getaccountingsystemrelatedaccounts.md`, `add…`, `update…`, `delete…` |
+| `notification-events-webhooks/` | `Order-Notifications.md` (canonical OrderStatus enum lives here) |
+
+### Cross-cutting docs
+
+- `docs/introductions-and-getting-started/Authentication.md` — exact header names (`NETOAPI_ACTION`, `NETOAPI_USERNAME`, `NETOAPI_KEY`) and OAuth flow
+- `docs/introductions-and-getting-started/Api-Best-Practices.md` — rate limit (500 req/min), batch patterns, UTC date guidance
+- `docs/introductions-and-getting-started/Api-Field-Types.md` — primitive types and length constraints
+- `docs/introductions-and-getting-started/Getting-Started-with-the-API.md` — endpoint and payload basics
+
+### Theme references (secondary)
+
+For any future theme-related features:
+- `../neto-docs-engineer/docs-base-tags/` — B@SE tag library (91 files, Liquid-like templating)
+- `../neto-docs-engineer/docs-tweak-documents/` — ready-made theme tweak snippets (101 files)
+
+### Self-audits
+
+Regenerable coverage and accuracy audits live under `docs/reviews/`:
+- `docs/reviews/coverage-gaps.md` — which of the 41+ Neto actions have dedicated commands vs. escape-hatch-only
+- `docs/reviews/accuracy-audit.md` — field-name / filter / enum / OutputSelector correctness of the commands that exist
+
+Re-run with `/review-cli` (slash command in `.claude/commands/review-cli.md`) when commands, defaults, or `KNOWN_ACTIONS` change.
