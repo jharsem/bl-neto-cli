@@ -492,6 +492,278 @@ neto customers update jdoe --credit-limit 5000 --dry-run
 
 ---
 
+### `neto customers log`
+
+Manage interaction notes against a customer record.
+
+| Subcommand | Description |
+|---|---|
+| `log add` | Add a new log entry |
+| `log update <log-id>` | Update an existing entry |
+
+**Shared flags:**
+
+| Option | Description |
+|---|---|
+| `--username <u>` | Customer username (required on add) |
+| `--notes <t>` | Log notes |
+| `--status <s>` | `Require Recontact`, `Recontacting`, or `Completed` |
+| `--follow-up-type <t>` | Follow-up type (e.g. `Call`, `Email`) |
+| `--follow-up-date <dt>` | Required follow-up date (`YYYY-MM-DD HH:MM:SS`) |
+| `--allocated-to <u>` | Staff username to allocate to |
+| `--dry-run` | Show payload without sending |
+| `--json` | Output response as JSON |
+
+```bash
+neto customers log add --username jdoe --notes "Called re: order delay" --status "Require Recontact" --follow-up-type Call
+neto customers log update 42 --status Completed --notes "Issue resolved"
+```
+
+---
+
+### `neto categories`
+
+Manage product categories.
+
+| Subcommand | Description |
+|---|---|
+| `list` | List active categories |
+| `get <CategoryID>` | Get a single category |
+| `create` | Create a new category |
+| `update <CategoryID>` | Update a category |
+
+**Key flags:** `--name` (required on create), `--parent-id`, `--sort-order`, `--active`, `--on-menu`, `--on-site-map`, `--allow-reviews`, `--require-login`, `--short-description1`, `--description1`, `--field Key=Value`, `--from-json`, `--dry-run`, `--json`
+
+```bash
+neto categories list
+neto categories list --parent-id 5 --all
+neto categories get 12
+neto categories create --name "New Range" --parent-id 5 --active True
+neto categories update 12 --sort-order 10 --on-menu False
+```
+
+---
+
+### `neto warehouses`
+
+Manage stock warehouses.
+
+| Subcommand | Description |
+|---|---|
+| `list` | List active warehouses |
+| `get <ID\|reference>` | Get by numeric ID or reference string |
+| `create` | Create a warehouse |
+| `update <ID>` | Update a warehouse |
+
+**Key flags:** `--reference` (required on create), `--name`, `--is-primary` (required on create **and** update — API quirk), `--is-active`, `--show-quantity`, `--contact`, `--phone`, `--street`, `--city`, `--state`, `--postcode`, `--country`, `--notes`, `--dry-run`, `--json`
+
+```bash
+neto warehouses list
+neto warehouses get WH-SYD
+neto warehouses create --reference "WH-MEL" --name "Melbourne" --is-primary False
+neto warehouses update 3 --is-primary True --city "Sydney"   # --is-primary always required
+```
+
+---
+
+### `neto suppliers`
+
+Manage product suppliers.
+
+| Subcommand | Description |
+|---|---|
+| `list` | List suppliers |
+| `get <SupplierID>` | Get a single supplier |
+| `create` | Create a supplier |
+| `update <SupplierID>` | Update a supplier |
+
+**Key flags:** `--company`, `--email`, `--phone`, `--street`, `--city`, `--state`, `--postcode`, `--country`, `--currency-code`, `--lead-time1`, `--lead-time2`, `--account-code`, `--notes`, `--factory-*` (factory address mirrors), `--dry-run`, `--json`
+
+```bash
+neto suppliers list --country AU
+neto suppliers get SUP-001
+neto suppliers create --company "ACME Ltd" --email orders@acme.com --country AU --currency-code AUD
+neto suppliers update SUP-001 --lead-time1 7 --notes "Preferred supplier"
+```
+
+---
+
+### `neto vouchers`
+
+Manage gift and reward vouchers.
+
+| Subcommand | Description |
+|---|---|
+| `list` | List vouchers |
+| `get <VoucherID\|code>` | Get by ID or voucher code |
+| `create` | Create a voucher (attached to an existing order + SKU) |
+| `update <VoucherID>` | Update a voucher |
+| `redeem <VoucherID>` | Redeem a voucher against an order |
+
+```bash
+neto vouchers list --type Gift --redeemed False
+neto vouchers get GIFT-ABC123
+neto vouchers create --order-id N100001 --sku GIFT-CARD --recipient-email bob@example.com
+neto vouchers update 55 --email owner@example.com --is-redeemed False --owner owner@example.com
+neto vouchers redeem 55 --order-id N100002 --date-redeemed "2026-04-18 10:00:00" --redeem-amount 50
+```
+
+> **Note:** `vouchers update` requires all four flags (`--email`, `--is-redeemed`, `--owner`, positional ID) — the Neto API mandates all fields on every update.
+
+---
+
+### `neto content`
+
+Manage CMS content pages.
+
+| Subcommand | Description |
+|---|---|
+| `list` | List active content pages |
+| `get <ContentID>` | Get a single page |
+| `create` | Create a page |
+| `update <ContentID>` | Update a page |
+
+**Key flags:** `--name` (required on create), `--type` (required on create — content type integer), `--reference`, `--parent-id`, `--sort-order`, `--active`, `--on-menu`, `--on-site-map`, `--author`, `--short-description1`, `--description1`, `--seo-title`, `--seo-description`, `--seo-canonical`, `--header-template`, `--body-template`, `--field Key=Value`, `--from-json`, `--dry-run`, `--json`
+
+```bash
+neto content list
+neto content list --type 2 --all
+neto content get 39
+neto content create --name "About Us" --type "2" --active True --on-menu True
+neto content update 39 --seo-title "About Buttery Labs" --sort-order 5
+```
+
+---
+
+### `neto rma`
+
+Manage return merchandise authorisations (RMAs). There is no update action in the Neto API.
+
+| Subcommand | Description |
+|---|---|
+| `list` | List RMAs |
+| `get <RmaID>` | Get a single RMA |
+| `create` | Create an RMA |
+
+**Required flags on create:** `--order-id`, `--invoice-number`, `--customer-username`, `--staff-username`, `--po-number`, `--notes`, `--shipping-refund-tax-code`
+
+```bash
+neto rma list --status Open
+neto rma get 42
+neto rma create \
+  --order-id N100001 --invoice-number INV-001 \
+  --customer-username jdoe --staff-username admin \
+  --po-number PO-001 --notes "Faulty item return" \
+  --shipping-refund-tax-code GST --status Open
+
+# Complex payloads with RmaLines and Refunds
+neto rma create --from-json rma.json
+```
+
+> **Note:** `AddRma` returns an empty response body — the API does not return the new RmaID.
+
+---
+
+### `neto payments`
+
+Manage order payments and view payment methods.
+
+| Subcommand | Description |
+|---|---|
+| `list` | List payments |
+| `get <PaymentID>` | Get a single payment |
+| `create` | Add a payment to an order |
+| `methods` | List all configured payment methods (read-only) |
+
+```bash
+neto payments methods
+neto payments list --order-id N100001
+neto payments get 7
+neto payments create --order-id N100001 --amount 99.95 --authorisation "AUTH-12345" --method-name "Bank Deposit"
+neto payments create --order-id N100001 --amount 99.95 --authorisation "X" --date-paid 2026-04-18
+```
+
+---
+
+### `neto shipping`
+
+View shipping methods and calculate shipping quotes.
+
+| Subcommand | Description |
+|---|---|
+| `methods` | List all shipping methods (read-only) |
+| `quote` | Calculate a shipping quote |
+
+**Quote required flags:** `--postcode`, `--country`, `--city`, `--state`, `--po-box`, plus at least one `--line SKU:QTY[:PRICE]`
+
+```bash
+neto shipping methods
+neto shipping quote \
+  --postcode 2000 --country AU --city Sydney --state NSW --po-box False \
+  --line "SKU-001:1:79.95" --line "SKU-002:2"
+```
+
+---
+
+### `neto currency`
+
+View and update store currency settings. Singleton resource — no list.
+
+| Subcommand | Description |
+|---|---|
+| `get` | Get current currency settings |
+| `update` | Update currency settings |
+
+```bash
+neto currency get
+neto currency update --currency AUD --country AU --gst-amt 1.1
+neto currency update --gst-inc "Yes" --dry-run
+```
+
+---
+
+### `neto cart`
+
+Inspect customer shopping carts (read-only). Requires the "Abandoned Cart Saver" addon.
+
+| Subcommand | Description |
+|---|---|
+| `list` | List carts (default: Abandoned) |
+| `get <CartID>` | Get a single cart |
+
+```bash
+neto cart list                              # abandoned carts (default)
+neto cart list --status Open
+neto cart list --all --from "2026-01-01 00:00:00"
+neto cart get 123
+```
+
+---
+
+### `neto accounting`
+
+Manage accounting system related accounts.
+
+| Subcommand | Description |
+|---|---|
+| `accounts list` | List all related accounts |
+| `accounts get <id>` | Get a single account |
+| `accounts create` | Create an account |
+| `accounts update <id>` | Update an account |
+| `accounts delete <id>` | Delete an account (requires `--yes`) |
+
+> All field names are snake_case (`acc_account_ref`, `acc_account_name`, etc.) as defined by the Neto API.
+
+```bash
+neto accounting accounts list
+neto accounting accounts get 5
+neto accounting accounts create --ref "4-1000" --name "Sales Revenue" --type "Revenue" --active True
+neto accounting accounts update 5 --name "Renamed Account"
+neto accounting accounts delete 5 --yes
+```
+
+---
+
 ### `neto theme`
 
 Manage themes via SFTP. Requires SFTP credentials (`neto auth sftp`).
@@ -638,6 +910,42 @@ Neto supports two auth methods:
 | Host | `sftp.neto.com.au` |
 | Port | `1022` |
 | Remote path | `/httpdocs/assets/themes` |
+
+---
+
+## Agent Skill (Claude Code / LLM agents)
+
+A Claude Code slash command is included in the repo so AI agents can operate this CLI without needing to read all the docs first.
+
+### What it is
+
+`.claude/commands/neto.md` is a concise complete reference — all 45 commands, required flags, common patterns, and API quirks — formatted for an agent to read and act on immediately. Invoke it with `/neto` inside any Claude Code session.
+
+### Usage
+
+**If you have this repo checked out** — Claude Code picks up `.claude/commands/` automatically when you're working in this directory. Just type `/neto` in the chat.
+
+**Global install** (use from any project):
+
+```bash
+mkdir -p ~/.claude/commands
+cp .claude/commands/neto.md ~/.claude/commands/neto.md
+```
+
+Or as a symlink (stays in sync with repo updates):
+
+```bash
+ln -s "$(pwd)/.claude/commands/neto.md" ~/.claude/commands/neto.md
+```
+
+Then `/neto` is available in every Claude Code session regardless of working directory.
+
+### What an agent can do with it
+
+- Query any resource: products, orders, customers, categories, warehouses, suppliers, vouchers, content, RMAs, payments, cart, accounting
+- Create and update records with proper flag syntax
+- Understand required vs optional fields, API quirks (UpdateWarehouse IsPrimary, UpdateVoucher all-required, etc.)
+- Chain commands: look up a customer → create an order → add a payment → log a follow-up note
 
 ---
 
