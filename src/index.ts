@@ -9,6 +9,7 @@ import { registerCustomersCommand } from './commands/customers.js';
 import { registerWarehousesCommand } from './commands/warehouses.js';
 import { registerSuppliersCommand } from './commands/suppliers.js';
 import { registerCategoriesCommand } from './commands/categories.js';
+import { registerVouchersCommand } from './commands/vouchers.js';
 import { registerApiCommand } from './commands/api.js';
 import { registerThemeCommand } from './commands/theme.js';
 
@@ -27,6 +28,7 @@ registerCustomersCommand(program);
 registerWarehousesCommand(program);
 registerSuppliersCommand(program);
 registerCategoriesCommand(program);
+registerVouchersCommand(program);
 registerApiCommand(program);
 registerThemeCommand(program);
 

@@ -33,10 +33,10 @@
 | `GetCategory` | categories | `categories list / get` | ✅ | — |
 | `AddCategory` | categories | `categories create` | ✅ | — |
 | `UpdateCategory` | categories | `categories update` | ✅ | — |
-| `GetVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
-| `AddVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
-| `UpdateVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
-| `RedeemVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
+| `GetVoucher` | voucher | `vouchers list / get` | ✅ | — |
+| `AddVoucher` | voucher | `vouchers create` | ✅ | — |
+| `UpdateVoucher` | voucher | `vouchers update` | ✅ | — |
+| `RedeemVoucher` | voucher | `vouchers redeem` | ✅ | — |
 | `GetSupplier` | suppliers | `suppliers list / get` | ✅ | — |
 | `AddSupplier` | suppliers | `suppliers create` | ✅ | — |
 | `UpdateSupplier` | suppliers | `suppliers update` | ✅ | — |
@@ -63,7 +63,7 @@
 | `UpdateAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
 | `DeleteAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
 
-**Totals:** 22 ✅ dedicated · 19 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
+**Totals:** 26 ✅ dedicated · 15 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
 
 ---
 
@@ -83,7 +83,7 @@ Parity with `products`, using the same patterns:
 ### Tier 2 — commonly-used resources (real user demand)
 
 - **`neto categories list / get / create / update`** — taxonomy work
-- **`neto vouchers list / get / create / update / redeem`** — voucher management (`RedeemVoucher` is the interesting one; no equivalent in other resources)
+- ✅ **`neto vouchers list / get / create / update / redeem`** — done 2026-04-18. `redeem` is unique — maps to `RedeemVoucher`, requires `--order-id` + `--date-redeemed`. `update` requires all 4 API fields (VoucherID, Email, IsRedeemed, Owner).
 - **`neto suppliers list / get / create / update`** — supplier maintenance
 - **`neto warehouses list / get / create / update`** — multi-warehouse stores
 
