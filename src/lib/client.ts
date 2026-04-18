@@ -59,6 +59,34 @@ export function getResponseKey(action: string): string | undefined {
   return RESPONSE_KEYS[action];
 }
 
+/**
+ * Normalise Neto's inconsistent error shapes into a flat message list.
+ * Observed variants:
+ *   { Messages: { Error: { Message, ... } } }                 // single error, object
+ *   { Messages: { Error: [{ Message, ... }, ...] } }          // multiple errors, array under Error
+ *   { Messages: [{ Error: { Message, ... } }, ...] }          // array of {Error} envelopes
+ */
+function extractErrorMessages(data: any): string[] {
+  const msgs = data?.Messages;
+  if (!msgs) return [];
+  const errs: string[] = [];
+  const pushErr = (e: any) => {
+    if (e?.Message) errs.push(String(e.Message));
+  };
+
+  if (Array.isArray(msgs)) {
+    for (const m of msgs) {
+      if (!m?.Error) continue;
+      if (Array.isArray(m.Error)) m.Error.forEach(pushErr);
+      else pushErr(m.Error);
+    }
+  } else if (msgs.Error) {
+    if (Array.isArray(msgs.Error)) msgs.Error.forEach(pushErr);
+    else pushErr(msgs.Error);
+  }
+  return errs;
+}
+
 export class NetoApiClient {
   private baseUrl: string;
   private apiKey: string;
@@ -106,8 +134,9 @@ export class NetoApiClient {
 
         const data = await response.json();
 
-        if (data?.Messages?.Error?.length) {
-          throw new NetoApiError(action, 200, data.Messages.Error);
+        const errors = extractErrorMessages(data);
+        if (errors.length > 0 || data?.Ack === 'Error') {
+          throw new NetoApiError(action, 200, errors.length > 0 ? errors : ['Unknown error']);
         }
 
         return data;

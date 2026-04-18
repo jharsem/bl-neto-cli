@@ -168,6 +168,9 @@ export function registerCustomersCommand(program: Command): void {
       .option('--state <s>', 'Billing state')
       .option('--postcode <p>', 'Billing postcode')
       .option('--country <c>', 'Billing country')
+      .option('--bill-company <c>', 'Billing-address company (overrides --company for this block)')
+      .option('--bill-phone <p>', 'Billing-address phone (overrides --phone for this block)')
+      .option('--bill-fax <f>', 'Billing-address fax (overrides --fax for this block)')
       .option('--ship-same-as-bill', 'Copy billing address to shipping')
       .option('--ship-street <s>', 'Shipping street line 1')
       .option('--ship-street2 <s>', 'Shipping street line 2')
@@ -177,6 +180,9 @@ export function registerCustomersCommand(program: Command): void {
       .option('--ship-country <c>', 'Shipping country')
       .option('--ship-first-name <n>', 'Shipping first name (if different)')
       .option('--ship-last-name <n>', 'Shipping last name (if different)')
+      .option('--ship-company <c>', 'Shipping-address company')
+      .option('--ship-phone <p>', 'Shipping-address phone')
+      .option('--ship-fax <f>', 'Shipping-address fax')
       .option('--field <key=value>', 'Set any API field (repeatable)', collectField, [])
       .option('--from-json [path]', 'Read from JSON file or stdin')
       .option('--dry-run', 'Show payload without sending')
@@ -229,9 +235,14 @@ export function registerCustomersCommand(program: Command): void {
       if (opts.json) {
         outputJson(res);
       } else {
-        const created = res.Customer || items;
-        for (const c of created as any[]) {
-          console.log(chalk.green(`Created customer "${c.Username || ''}"`));
+        const created = res.Customer;
+        const list = Array.isArray(created) ? created : created ? [created] : [];
+        if (list.length === 0) {
+          console.log(chalk.yellow('Call succeeded but response contained no Customer record.'));
+        } else {
+          for (const c of list as any[]) {
+            console.log(chalk.green(`Created customer "${c.Username || ''}"`));
+          }
         }
       }
     } catch (err: any) {

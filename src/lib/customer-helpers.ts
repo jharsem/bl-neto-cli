@@ -33,6 +33,9 @@ const BILL_ADDRESS_MAP: Record<string, string> = {
   state: 'BillState',
   postcode: 'BillPostCode',
   country: 'BillCountry',
+  billCompany: 'BillCompany',
+  billPhone: 'BillPhone',
+  billFax: 'BillFax',
 };
 
 const SHIP_ADDRESS_MAP: Record<string, string> = {
@@ -42,6 +45,9 @@ const SHIP_ADDRESS_MAP: Record<string, string> = {
   shipState: 'ShipState',
   shipPostcode: 'ShipPostCode',
   shipCountry: 'ShipCountry',
+  shipCompany: 'ShipCompany',
+  shipPhone: 'ShipPhone',
+  shipFax: 'ShipFax',
 };
 
 function buildBillingAddress(opts: Record<string, any>): Record<string, unknown> | undefined {
@@ -51,9 +57,14 @@ function buildBillingAddress(opts: Record<string, any>): Record<string, unknown>
     if (opts[flag] !== undefined) address[apiField] = opts[flag];
   }
 
-  // Denormalised address model: copy top-level name onto the billing block when provided.
+  // Denormalised address model: top-level fields populate the billing block unless an
+  // explicit --bill-* override was provided. Confirmed against a live Neto store where
+  // top-level Company/Phone don't propagate automatically.
   if (opts.firstName !== undefined) address.BillFirstName = opts.firstName;
   if (opts.lastName !== undefined) address.BillLastName = opts.lastName;
+  if (opts.company !== undefined && address.BillCompany === undefined) address.BillCompany = opts.company;
+  if (opts.phone !== undefined && address.BillPhone === undefined) address.BillPhone = opts.phone;
+  if (opts.fax !== undefined && address.BillFax === undefined) address.BillFax = opts.fax;
 
   return Object.keys(address).length > 0 ? address : undefined;
 }

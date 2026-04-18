@@ -474,6 +474,8 @@ neto customers create --username jdoe --email jane@example.com --dry-run
 
 Update an existing customer. Same flags as `create` (all optional), with username provided as argument.
 
+> **⚠ Address replacement is wholesale, not merge.** If you pass *any* billing or shipping flag, the Neto API replaces the entire `BillingAddress` / `ShippingAddress` block with exactly what you send — unsent child fields (BillFirstName, BillCompany, etc.) are blanked. When editing an address, resend every field you want to keep, or fetch the record with `neto customers get <username> --json`, edit it, and push it back via `--from-json`.
+
 ```bash
 # Update credit limit
 neto customers update jdoe --credit-limit 5000
