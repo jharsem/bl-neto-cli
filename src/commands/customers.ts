@@ -313,5 +313,78 @@ export function registerCustomersCommand(program: Command): void {
     }
   });
 
+  // neto customers log add / update
+  // Verified against ../neto-docs-engineer/docs/customers/{addcustomerlog,updatecustomerlog}.md
+  // Body shape: { CustomerLogs: { CustomerLog: [{...}] } } — distinct from other resources
+  const log = customers.command('log').description('Manage customer interaction logs');
+
+  const addLogFlags = (cmd: Command) =>
+    cmd
+      .option('--username <u>', 'Customer username')
+      .option('--customer-name <n>', 'Customer name')
+      .option('--allocated-to <u>', 'Staff member to allocate to')
+      .option('--follow-up-type <t>', 'Follow-up type')
+      .option('--last-contacted <dt>', 'Last contacted date (YYYY-MM-DD HH:MM:SS)')
+      .option('--follow-up-date <dt>', 'Required follow-up date (YYYY-MM-DD HH:MM:SS)')
+      .option('--status <s>', 'Status: "Require Recontact", "Recontacting", or "Completed"')
+      .option('--notes <t>', 'Notes')
+      .option('--dry-run', 'Show payload without sending')
+      .option('--json', 'Output response as JSON');
+
+  addLogFlags(log.command('add').description('Add a customer log entry')).action(async (opts) => {
+    const client = requireAuth();
+    const entry: Record<string, unknown> = {};
+    if (opts.username) entry.Username = opts.username;
+    if (opts.customerName) entry.CustomerName = opts.customerName;
+    if (opts.allocatedTo) entry.AllocatedTo = opts.allocatedTo;
+    if (opts.followUpType) entry.FollowUpType = opts.followUpType;
+    if (opts.lastContacted) entry.LastContacted = opts.lastContacted;
+    if (opts.followUpDate) entry.DateRequiredFollowUp = opts.followUpDate;
+    if (opts.status) entry.Status = opts.status;
+    if (opts.notes) entry.Notes = opts.notes;
+    const body = { CustomerLogs: { CustomerLog: [entry] } };
+    if (opts.dryRun) { console.log(chalk.bold('Dry run — would send:')); outputJson(body); return; }
+    const spinner = ora('Adding customer log entry...').start();
+    try {
+      const res = await client.call('AddCustomerLog', body);
+      printWarnings(res);
+      spinner.stop();
+      if (opts.json) {
+        outputJson(res);
+      } else {
+        const created = res.CustomerLog;
+        const list = Array.isArray(created) ? created : created ? [created] : [];
+        if (list.length > 0) {
+          console.log(chalk.green(`Added customer log entry ${list[0].LogID}`));
+        } else {
+          console.log(chalk.green('Added customer log entry.'));
+        }
+      }
+    } catch (err: any) { spinner.fail(err.message); process.exit(1); }
+  });
+
+  addLogFlags(log.command('update <log-id>').description('Update a customer log entry by LogID')).action(async (logId, opts) => {
+    const client = requireAuth();
+    const entry: Record<string, unknown> = { LogID: logId };
+    if (opts.customerName) entry.CustomerName = opts.customerName;
+    if (opts.allocatedTo) entry.AllocatedTo = opts.allocatedTo;
+    if (opts.followUpType) entry.FollowUpType = opts.followUpType;
+    if (opts.lastContacted) entry.LastContacted = opts.lastContacted;
+    if (opts.followUpDate) entry.DateRequiredFollowUp = opts.followUpDate;
+    if (opts.status) entry.Status = opts.status;
+    if (opts.notes) entry.Notes = opts.notes;
+    if (Object.keys(entry).length === 1) { console.error(chalk.red('Error: No fields to update.')); process.exit(1); }
+    const body = { CustomerLogs: { CustomerLog: [entry] } };
+    if (opts.dryRun) { console.log(chalk.bold('Dry run — would send:')); outputJson(body); return; }
+    const spinner = ora(`Updating customer log ${logId}...`).start();
+    try {
+      const res = await client.call('UpdateCustomerLog', body);
+      printWarnings(res);
+      spinner.stop();
+      opts.json ? outputJson(res) : console.log(chalk.green(`Updated customer log ${logId}`));
+    } catch (err: any) { spinner.fail(err.message); process.exit(1); }
+  });
+
+  log.action(() => log.outputHelp());
   customers.action(() => customers.outputHelp());
 }

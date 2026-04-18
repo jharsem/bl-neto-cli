@@ -10,6 +10,13 @@ import { registerWarehousesCommand } from './commands/warehouses.js';
 import { registerSuppliersCommand } from './commands/suppliers.js';
 import { registerCategoriesCommand } from './commands/categories.js';
 import { registerVouchersCommand } from './commands/vouchers.js';
+import { registerContentCommand } from './commands/content.js';
+import { registerRmaCommand } from './commands/rma.js';
+import { registerPaymentsCommand } from './commands/payments.js';
+import { registerShippingCommand } from './commands/shipping.js';
+import { registerCurrencyCommand } from './commands/currency.js';
+import { registerCartCommand } from './commands/cart.js';
+import { registerAccountingCommand } from './commands/accounting.js';
 import { registerApiCommand } from './commands/api.js';
 import { registerThemeCommand } from './commands/theme.js';
 
@@ -29,6 +36,13 @@ registerWarehousesCommand(program);
 registerSuppliersCommand(program);
 registerCategoriesCommand(program);
 registerVouchersCommand(program);
+registerContentCommand(program);
+registerRmaCommand(program);
+registerPaymentsCommand(program);
+registerShippingCommand(program);
+registerCurrencyCommand(program);
+registerCartCommand(program);
+registerAccountingCommand(program);
 registerApiCommand(program);
 registerThemeCommand(program);
 

@@ -43,27 +43,27 @@
 | `GetWarehouse` | warehouses | `warehouses list / get` | ✅ | — |
 | `AddWarehouse` | warehouses | `warehouses create` | ✅ | — |
 | `UpdateWarehouse` | warehouses | `warehouses update` | ✅ | — |
-| `GetContent` | content | escape-hatch | ⚠️ | Tier 3 |
-| `AddContent` | content | escape-hatch | ⚠️ | Tier 3 |
-| `UpdateContent` | content | escape-hatch | ⚠️ | Tier 3 |
-| `GetRma` | rma | escape-hatch | ⚠️ | Tier 3 |
-| `AddRma` | rma | escape-hatch | ⚠️ | Tier 3 |
-| `GetPayment` | payments | escape-hatch | ⚠️ | Tier 3 |
-| `AddPayment` | payments | escape-hatch | ⚠️ | Tier 3 |
-| `GetPaymentMethods` | payments | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `GetShippingMethods` | shipping | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `GetShippingQuote` | shipping | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `GetCurrencySettings` | currency | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `UpdateCurrencySettings` | currency | escape-hatch | ⚠️ | Tier 3 |
-| `GetCart` | abandoned-cart | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `AddCustomerLog` | customers | escape-hatch | ⚠️ | Tier 3 |
-| `UpdateCustomerLog` | customers | escape-hatch | ⚠️ | Tier 3 |
-| `GetAccountingSystemRelatedAccounts` | accounting-system | escape-hatch | ⚠️ 🔎 | Tier 3 |
-| `AddAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
-| `UpdateAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
-| `DeleteAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
+| `GetContent` | content | `content list / get` | ✅ | — |
+| `AddContent` | content | `content create` | ✅ | — |
+| `UpdateContent` | content | `content update` | ✅ | — |
+| `GetRma` | rma | `rma list / get` | ✅ | — |
+| `AddRma` | rma | `rma create` | ✅ | — |
+| `GetPayment` | payments | `payments list / get` | ✅ | — |
+| `AddPayment` | payments | `payments create` | ✅ | — |
+| `GetPaymentMethods` | payments | `payments methods` | ✅ 🔎 | — |
+| `GetShippingMethods` | shipping | `shipping methods` | ✅ 🔎 | — |
+| `GetShippingQuote` | shipping | `shipping quote` | ✅ 🔎 | — |
+| `GetCurrencySettings` | currency | `currency get` | ✅ 🔎 | — |
+| `UpdateCurrencySettings` | currency | `currency update` | ✅ | — |
+| `GetCart` | abandoned-cart | `cart list / get` | ✅ 🔎 | — |
+| `AddCustomerLog` | customers | `customers log add` | ✅ | — |
+| `UpdateCustomerLog` | customers | `customers log update` | ✅ | — |
+| `GetAccountingSystemRelatedAccounts` | accounting-system | `accounting accounts list / get` | ✅ 🔎 | — |
+| `AddAccountingSystemRelatedAccount` | accounting-system | `accounting accounts create` | ✅ | — |
+| `UpdateAccountingSystemRelatedAccount` | accounting-system | `accounting accounts update` | ✅ | — |
+| `DeleteAccountingSystemRelatedAccount` | accounting-system | `accounting accounts delete` | ✅ | — |
 
-**Totals:** 26 ✅ dedicated · 15 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
+**Totals:** 45 ✅ dedicated · 0 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
 
 ---
 
@@ -87,16 +87,16 @@ Parity with `products`, using the same patterns:
 - **`neto suppliers list / get / create / update`** — supplier maintenance
 - **`neto warehouses list / get / create / update`** — multi-warehouse stores
 
-### Tier 3 — niche / low-traffic
+### Tier 3 — niche / low-traffic — **DONE**
 
-- **`neto content list / get / create / update`** — CMS pages
-- **`neto rma list / get / create`** — returns (no Update per docs)
-- **`neto payments list / get / create`** + **`neto payments methods`** (read-only)
-- **`neto shipping methods`** + **`neto shipping quote`** (both read-only, quote takes a cart payload)
-- **`neto currency get / update`** (singleton — no list)
-- **`neto cart get <sessionid>`** (read-only abandoned-cart lookup)
-- **`neto customers log add / update`** — interaction notes on a customer
-- **`neto accounting accounts list / create / update / delete`** — ERP integration
+- ✅ **`neto content list / get / create / update`** — done 2026-04-18
+- ✅ **`neto rma list / get / create`** — done 2026-04-18. No Update per docs. AddRma returns empty response body (no RmaID).
+- ✅ **`neto payments list / get / create`** + **`neto payments methods`** — done 2026-04-18
+- ✅ **`neto shipping methods`** + **`neto shipping quote`** — done 2026-04-18. Quote takes `--line SKU:QTY[:PRICE]` repeatable flags.
+- ✅ **`neto currency get / update`** — done 2026-04-18. Singleton resource, no list.
+- ✅ **`neto cart list / get`** — done 2026-04-18. `list` defaults to Abandoned; `--all` returns all statuses.
+- ✅ **`neto customers log add / update`** — done 2026-04-18. Body shape `{ CustomerLogs: { CustomerLog: [...] } }` — distinct from other resources.
+- ✅ **`neto accounting accounts list / get / create / update / delete`** — done 2026-04-18. First resource with `delete`; uses `--yes` confirmation flag. All fields are snake_case per the API.
 
 ---
 
