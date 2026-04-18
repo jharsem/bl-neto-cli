@@ -46,11 +46,21 @@ export function outputDetail(data: Record<string, unknown>, keys?: string[]): vo
 }
 
 export function printWarnings(data: any): void {
-  const warnings = data?.Messages?.Warning;
-  if (warnings?.length) {
-    for (const w of warnings) {
-      console.error(chalk.yellow(`Warning: ${w}`));
+  // Neto returns Messages in inconsistent shapes (array of {Warning}, object {Warning: [...] | {...}})
+  const msgs = data?.Messages;
+  if (!msgs) return;
+  const items: any[] = [];
+  if (Array.isArray(msgs)) {
+    for (const m of msgs) {
+      if (!m?.Warning) continue;
+      items.push(...(Array.isArray(m.Warning) ? m.Warning : [m.Warning]));
     }
+  } else if (msgs.Warning) {
+    items.push(...(Array.isArray(msgs.Warning) ? msgs.Warning : [msgs.Warning]));
+  }
+  for (const w of items) {
+    const msg = typeof w === 'string' ? w : (w?.Message ?? JSON.stringify(w));
+    console.error(chalk.yellow(`Warning: ${msg}`));
   }
 }
 
