@@ -1,6 +1,6 @@
 # Coverage Gaps — CLI vs. Neto API
 
-**Generated:** 2026-04-18 (Tier 1 complete: customers + orders write commands shipped)
+**Generated:** 2026-04-18 (Tier 2 in progress: warehouses, suppliers, categories done)
 **Method:** Cross-reference of `src/commands/*.ts` and `src/commands/api.ts` (`KNOWN_ACTIONS`) against `../neto-docs-engineer/docs/` (48 scraped action docs).
 **Re-run:** `/review-cli`
 
@@ -30,19 +30,19 @@
 | `GetCustomer` | customers | `customers list / get` | ✅ | — |
 | `AddCustomer` | customers | `customers create` | ✅ | — |
 | `UpdateCustomer` | customers | `customers update` | ✅ | — |
-| `GetCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
-| `AddCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
-| `UpdateCategory` | categories | escape-hatch | ⚠️ | **Tier 2** |
+| `GetCategory` | categories | `categories list / get` | ✅ | — |
+| `AddCategory` | categories | `categories create` | ✅ | — |
+| `UpdateCategory` | categories | `categories update` | ✅ | — |
 | `GetVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
 | `AddVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
 | `UpdateVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
 | `RedeemVoucher` | voucher | escape-hatch | ⚠️ | **Tier 2** |
-| `GetSupplier` | suppliers | escape-hatch | ⚠️ | **Tier 2** |
-| `AddSupplier` | suppliers | escape-hatch | ⚠️ | **Tier 2** |
-| `UpdateSupplier` | suppliers | escape-hatch | ⚠️ | **Tier 2** |
-| `GetWarehouse` | warehouses | escape-hatch | ⚠️ | **Tier 2** |
-| `AddWarehouse` | warehouses | escape-hatch | ⚠️ | **Tier 2** |
-| `UpdateWarehouse` | warehouses | escape-hatch | ⚠️ | **Tier 2** |
+| `GetSupplier` | suppliers | `suppliers list / get` | ✅ | — |
+| `AddSupplier` | suppliers | `suppliers create` | ✅ | — |
+| `UpdateSupplier` | suppliers | `suppliers update` | ✅ | — |
+| `GetWarehouse` | warehouses | `warehouses list / get` | ✅ | — |
+| `AddWarehouse` | warehouses | `warehouses create` | ✅ | — |
+| `UpdateWarehouse` | warehouses | `warehouses update` | ✅ | — |
 | `GetContent` | content | escape-hatch | ⚠️ | Tier 3 |
 | `AddContent` | content | escape-hatch | ⚠️ | Tier 3 |
 | `UpdateContent` | content | escape-hatch | ⚠️ | Tier 3 |
@@ -63,7 +63,7 @@
 | `UpdateAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
 | `DeleteAccountingSystemRelatedAccount` | accounting-system | escape-hatch | ⚠️ | Tier 3 |
 
-**Totals:** 13 ✅ dedicated · 28 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
+**Totals:** 22 ✅ dedicated · 19 ⚠️ escape-hatch-only · 0 ❌ missing from `KNOWN_ACTIONS` · 6 🔎 read-only resources
 
 ---
 

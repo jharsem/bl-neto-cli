@@ -6,6 +6,9 @@ import { registerInfoCommand } from './commands/info.js';
 import { registerProductsCommand } from './commands/products.js';
 import { registerOrdersCommand } from './commands/orders.js';
 import { registerCustomersCommand } from './commands/customers.js';
+import { registerWarehousesCommand } from './commands/warehouses.js';
+import { registerSuppliersCommand } from './commands/suppliers.js';
+import { registerCategoriesCommand } from './commands/categories.js';
 import { registerApiCommand } from './commands/api.js';
 import { registerThemeCommand } from './commands/theme.js';
 
@@ -21,6 +24,9 @@ registerInfoCommand(program);
 registerProductsCommand(program);
 registerOrdersCommand(program);
 registerCustomersCommand(program);
+registerWarehousesCommand(program);
+registerSuppliersCommand(program);
+registerCategoriesCommand(program);
 registerApiCommand(program);
 registerThemeCommand(program);
 
